@@ -32,7 +32,7 @@
     "@types/jsrsasign": "^10.5.3",
     "deta": "^1.1.0",
     "dotenv": "^16.0.2",
-    "firebase-admin": "^11.0.1",
+    "firebase-admin": "^11.4.1",
     "helmet": "^6.0.0",
     "jsrsasign": "^10.5.27"
   }
