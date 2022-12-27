@@ -5,7 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "build": "tsc",
-    "test": "mocha -r ts-node/register **/*.spec.ts",
+    "test": "mocha -r ts-node/register test/**/*.spec.ts",
     "deploy": "npm run build && serverless deploy",
     "debug:server": "nodemon debug-server/index.ts"
   },

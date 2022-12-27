@@ -19,6 +19,6 @@ describe("hasNewKey.handler",()=>{
         let respBody = await handler(
             requestData
         ,null,()=>{});
-        assert(respBody.body.includes("true")) // not motivated enough to parse into an object
+        assert((respBody.body.valueOf() as any).hasNewer==true) // not motivated enough to parse into an object
     })
 })
