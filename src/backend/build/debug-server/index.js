@@ -34,7 +34,6 @@ app.post("/sign", async (req, resp) => {
     let respBody = await (0, signingHandlerExporter_1.default)(event, null, null);
 });
 app.get("/new-key", async (req, resp) => {
-    console.log(req.headers);
     let event = {
         pathParameters: "",
         queryStringParameters: {},
@@ -46,5 +45,8 @@ app.get("/new-key", async (req, resp) => {
     let respBody = await (0, getKeyHandlerExporter_1.default)(event, null, null);
     resp.set("Content-Type", "application/json");
     return resp.status(respBody.statusCode).json(respBody.body);
+});
+app.get("/test", (req, resp) => {
+    return resp.status(200).json(JSON.stringify({ data: "ok" }));
 });
 app.listen(8000, () => console.info("Running on PORT 8000"));

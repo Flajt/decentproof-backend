@@ -15,7 +15,7 @@ async function handler(event, context, callback) {
         let body = {
             statusCode: 200,
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ hasNewer: hasNewer }),
+            body: { hasNewer: hasNewer },
         };
         console.info("Request successfull");
         return body;

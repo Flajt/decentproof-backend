@@ -4,9 +4,7 @@ const firebase_admin_1 = require("firebase-admin");
 class AppcheckWrapper {
     async verifyToken(token) {
         try {
-            console.log(token);
             let isValid = await (0, firebase_admin_1.appCheck)().verifyToken(token);
-            console.log(isValid);
             if (isValid)
                 return true;
             return false;

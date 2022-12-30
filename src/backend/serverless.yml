@@ -30,6 +30,10 @@ package:
     - '!helper/**'
     - '!.env'
     - '!tsconfig.json'
+    - '!test/**'
+    - '!debug-server'
+    - '!build/debug-server'
+    - '!build/test/**'
 
 functions:
   new-key-required:
