@@ -3,9 +3,7 @@ import {appCheck}  from "firebase-admin";
 class AppcheckWrapper {
     async verifyToken(token: string): Promise<boolean> {
         try {
-            console.log(token)
             let isValid = await appCheck().verifyToken(token);
-            console.log(isValid);
             if (isValid)
                 return true;
             return false

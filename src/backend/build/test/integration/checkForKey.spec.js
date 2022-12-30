@@ -17,6 +17,6 @@ dotenv.config();
             isBase64Encoded: false
         };
         let respBody = await (0, hasNewKey_1.handler)(requestData, null, () => { });
-        (0, chai_1.assert)(respBody.body.includes("true")); // not motivated enough to parse into an object
+        (0, chai_1.assert)(respBody.body.valueOf().hasNewer == true); // not motivated enough to parse into an object
     });
 });

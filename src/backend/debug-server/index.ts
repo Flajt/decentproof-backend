@@ -35,7 +35,6 @@ app.post("/sign",async (req,resp)=>{
 
 })
 app.get("/new-key",async (req,resp)=>{
-    console.log(req.headers);
     let event:FunctionEvent = {
         pathParameters: "",
         queryStringParameters: {},
