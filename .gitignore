@@ -4,3 +4,4 @@ decentproof-66628-firebase-adminsdk-5po37-26b01e1c7e.json
 *.env
 node_modules/
 .DS_STORE
+*.zip
