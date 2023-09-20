@@ -86,6 +86,28 @@ func TestCreateSecretVersion(t *testing.T) {
 	}
 }
 
+func TestListSecretsWName(t *testing.T) {
+	wrapper, err := decentproof_cronjob.NewScaleWayWrapper()
+	if err != nil {
+		t.Error(err)
+	}
+	if err := wrapper.SetSecret("tester", "test"); err != nil {
+		t.Error(err)
+	}
+	if err := wrapper.SetSecret("tester2", "test2"); err != nil {
+		t.Error(err)
+	}
+	holder, err := wrapper.ListSecrets("tester")
+	if err != nil {
+		t.Error(err)
+	}
+	want := 1
+	if int(holder.TotalCount) != want {
+		t.Errorf("Got %d secrets, wanted %d", holder.TotalCount, want)
+	}
+	t.Cleanup(func() { cleanUp(t) })
+}
+
 func cleanUp(t *testing.T) {
 	if wrapper, err := decentproof_cronjob.NewScaleWayWrapper(); err != nil {
 		t.Error(err)

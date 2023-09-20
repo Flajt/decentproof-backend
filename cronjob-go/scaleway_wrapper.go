@@ -55,12 +55,21 @@ func NewScaleWayWrapper() (*ScalewayWrapper, error) {
 	}
 }
 
-func (scalewayWrapper *ScalewayWrapper) ListSecrets() (SecretHolder, error) {
-	if secrets, err := scalewayWrapper.Api.ListSecrets(&secret_manager.ListSecretsRequest{ProjectID: &scalewayWrapper.PROJECT_ID}); err != nil {
-		return SecretHolder{}, err
+func (scalewayWrapper *ScalewayWrapper) ListSecrets(names ...string) (SecretHolder, error) {
+	if len(names) > 0 {
+		if secrets, err := scalewayWrapper.Api.ListSecrets(&secret_manager.ListSecretsRequest{ProjectID: &scalewayWrapper.PROJECT_ID, Name: &names[0]}); err != nil {
+			return SecretHolder{}, err
+		} else {
+			return SecretHolder{Secrets: secrets.Secrets, TotalCount: secrets.TotalCount}, nil
+		}
 	} else {
-		return SecretHolder{Secrets: secrets.Secrets, TotalCount: secrets.TotalCount}, nil
+		if secrets, err := scalewayWrapper.Api.ListSecrets(&secret_manager.ListSecretsRequest{ProjectID: &scalewayWrapper.PROJECT_ID}); err != nil {
+			return SecretHolder{}, err
+		} else {
+			return SecretHolder{Secrets: secrets.Secrets, TotalCount: secrets.TotalCount}, nil
+		}
 	}
+
 }
 
 func (ScalewayWrapper *ScalewayWrapper) ListSecretVersions(secretID string) (SecretVersionHolder, error) {
