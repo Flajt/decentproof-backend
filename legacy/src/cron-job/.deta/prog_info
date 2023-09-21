@@ -1,0 +1,1 @@
+{"id":"7a163bbd-f003-491e-a938-c70537dd468f","space":17883,"runtime":"nodejs14.x","name":"cron-job","path":"6ten9i","project":"a042cswx","account":"144798365827","region":"eu-central-1","deps":["deta@^1.1.0","dotenv@^16.0.3"],"envs":["PROJECT_KEY"],"public":true,"log_level":"debug","cron":"14 days"}
