@@ -2,6 +2,7 @@ package decentproof_cronjob
 
 import (
 	"net/http"
+	"strconv"
 )
 
 func Handle(w http.ResponseWriter, r *http.Request) {
@@ -30,17 +31,19 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		} else {
 			if versionHolder.TotalCount == 2 {
-				secretOneCreationTime := secretHolder.Secrets[0].CreatedAt
-				secretTwoCreationTime := secretHolder.Secrets[1].CreatedAt
+				firstSecret := versionHolder.SecretVersions[0]
+				secondSecret := versionHolder.SecretVersions[1]
+				secretOneCreationTime := firstSecret.CreatedAt
+				secretTwoCreationTime := secondSecret.CreatedAt
 				firstSecretCreationDateLater := secretOneCreationTime.After(*secretTwoCreationTime)
 				if firstSecretCreationDateLater {
 					//Delete secret 2
-					if err := wrapper.DeleteSecret(secretHolder.Secrets[1].ID); err != nil {
+					if err := wrapper.DeleteSecretVersion(secondSecret.SecretID, strconv.FormatUint(uint64(secondSecret.Revision), 10)); err != nil {
 						returnError(w, err)
 						panic(err)
 					}
 				} else {
-					if err := wrapper.DeleteSecret(secretHolder.Secrets[0].ID); err != nil {
+					if err := wrapper.DeleteSecretVersion(firstSecret.SecretID, strconv.FormatUint(uint64(firstSecret.Revision), 10)); err != nil {
 						returnError(w, err)
 						panic(err)
 					}

@@ -108,6 +108,7 @@ func TestListSecretsWName(t *testing.T) {
 	t.Cleanup(func() { cleanUp(t) })
 }
 
+// /Removes all created secrets
 func cleanUp(t *testing.T) {
 	if wrapper, err := decentproof_cronjob.NewScaleWayWrapper(); err != nil {
 		t.Error(err)

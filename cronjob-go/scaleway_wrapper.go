@@ -119,3 +119,10 @@ func (scalewayWrapper *ScalewayWrapper) DeleteSecret(id string) error {
 	}
 	return nil
 }
+
+func (scalewayWrapper *ScalewayWrapper) DeleteSecretVersion(id string, revision string) error {
+	if _, err := scalewayWrapper.Api.DestroySecretVersion(&secret_manager.DestroySecretVersionRequest{SecretID: id, Region: scw.RegionNlAms, Revision: revision}); err != nil {
+		return err
+	}
+	return nil
+}
