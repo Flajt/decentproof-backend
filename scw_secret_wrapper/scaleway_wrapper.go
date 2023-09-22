@@ -68,34 +68,33 @@ func (ScalewayWrapper *ScalewayWrapper) ListSecretVersions(secretID string) (Sec
 	}
 }
 
-func (scalewayWrapper *ScalewayWrapper) GetSecretData(secretName string, revision string) (string, error) {
-	if secret, err := scalewayWrapper.Api.GetSecretVersionByName(&secret_manager.GetSecretVersionByNameRequest{Region: scw.RegionNlAms, Revision: revision, SecretName: secretName}); err != nil {
-		return "", err
+func (scalewayWrapper *ScalewayWrapper) GetSecretData(secretName string, revision string) ([]byte, error) {
+	requestParams := &secret_manager.GetSecretVersionByNameRequest{Region: scw.RegionNlAms, Revision: revision, SecretName: secretName, ProjectID: &scalewayWrapper.PROJECT_ID}
+	if secret, err := scalewayWrapper.Api.GetSecretVersionByName(requestParams); err != nil {
+		return []byte{}, err
 	} else {
-		if secretVersion, err := scalewayWrapper.Api.AccessSecretVersion(&secret_manager.AccessSecretVersionRequest{Region: scw.RegionNlAms, SecretID: secret.SecretID}); err != nil {
-			return "", err
+		if secretVersion, err := scalewayWrapper.Api.AccessSecretVersion(&secret_manager.AccessSecretVersionRequest{Region: scw.RegionNlAms, SecretID: secret.SecretID, Revision: revision}); err != nil {
+			return []byte{}, err
 		} else {
-			return string(secretVersion.Data), nil
+			return secretVersion.Data, nil
 		}
 	}
 }
 
-func (scalewayWrapper *ScalewayWrapper) SetSecret(secretName string, secretValue string) error {
-	inputBytes := []byte(secretValue)
+func (scalewayWrapper *ScalewayWrapper) SetSecret(secretName string, secretValue []byte) error {
 
 	if secret, err := scalewayWrapper.Api.CreateSecret(&secret_manager.CreateSecretRequest{Name: secretName, Type: secret_manager.SecretTypeUnknownSecretType}); err != nil {
 		return err
 	} else {
-		if _, err := scalewayWrapper.Api.CreateSecretVersion(&secret_manager.CreateSecretVersionRequest{SecretID: secret.ID, Data: inputBytes}); err != nil {
+		if _, err := scalewayWrapper.Api.CreateSecretVersion(&secret_manager.CreateSecretVersionRequest{SecretID: secret.ID, Data: secretValue}); err != nil {
 			return err
 		}
 		return nil
 	}
 }
 
-func (scalewayWrapper *ScalewayWrapper) CreateNewSecretVersion(secret secret_manager.Secret, data string) error {
-	inputBytes := []byte(data)
-	if _, err := scalewayWrapper.Api.CreateSecretVersion(&secret_manager.CreateSecretVersionRequest{SecretID: secret.ID, Data: inputBytes}); err != nil {
+func (scalewayWrapper *ScalewayWrapper) CreateNewSecretVersion(secret secret_manager.Secret, data []byte) error {
+	if _, err := scalewayWrapper.Api.CreateSecretVersion(&secret_manager.CreateSecretVersionRequest{SecretID: secret.ID, Data: data}); err != nil {
 		return err
 	}
 	return nil

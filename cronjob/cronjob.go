@@ -22,7 +22,8 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	}
 	if secretHolder.TotalCount == 0 {
 		apiKey := GenerateApiKey()
-		if err := wrapper.SetSecret("apiKey", apiKey); err != nil {
+		keyAsBytes := []byte(apiKey)
+		if err := wrapper.SetSecret("apiKey", keyAsBytes); err != nil {
 			panic(err)
 		}
 		w.Header().Set("Content-type", "text/plain")
@@ -50,14 +51,15 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 						panic(err)
 					}
 					apiKey := GenerateApiKey()
+					apiKeyBytes := []byte(apiKey)
 					//TODO: Can this duplication be removed?
 					if firstSecretCreationDateLater {
-						if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[1], apiKey); err != nil {
+						if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[1], apiKeyBytes); err != nil {
 							returnError(w, err)
 							panic(err)
 						}
 					} else {
-						if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[0], apiKey); err != nil {
+						if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[0], apiKeyBytes); err != nil {
 							returnError(w, err)
 							panic(err)
 						}
@@ -65,7 +67,8 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 				}
 			} else {
 				apiKey := GenerateApiKey()
-				if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[0], apiKey); err != nil {
+				apiKeyBytes := []byte(apiKey)
+				if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[0], apiKeyBytes); err != nil {
 					returnError(w, err)
 					panic(err)
 				}

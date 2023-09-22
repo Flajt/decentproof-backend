@@ -1,7 +1,15 @@
 package scw_secret_manager
 
 import (
+	"bytes"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/x509"
+	"encoding/pem"
 	"os"
+	"reflect"
+	"strconv"
 	"testing"
 
 	"github.com/joho/godotenv"
@@ -21,7 +29,8 @@ func TestSecretCreation(t *testing.T) {
 	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
 
 	wrapper := NewScaleWayWrapper(setupData)
-	if err := wrapper.SetSecret("test", "test"); err != nil {
+	input := bytes.NewBufferString("test")
+	if err := wrapper.SetSecret("test", input.Bytes()); err != nil {
 		t.Error(err)
 		t.Logf("THIS IS OK IF YOU DONT CONNECT TO THE SCALEWAY CONSOLE")
 	}
@@ -37,7 +46,8 @@ func TestListSecrets(t *testing.T) {
 
 	want := 1
 	wrapper := NewScaleWayWrapper(setupData)
-	if err := wrapper.SetSecret("test", "b"); err != nil {
+	input := bytes.NewBufferString("test")
+	if err := wrapper.SetSecret("test", input.Bytes()); err != nil {
 		t.Error(err)
 	}
 	if secrets, err := wrapper.ListSecrets(); err != nil {
@@ -57,7 +67,8 @@ func TestFailingSecretCreation(t *testing.T) {
 	godotenv.Load(".env")
 	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
 	wrapper := NewScaleWayWrapper(setupData)
-	if err := wrapper.SetSecret("a", "b"); err == nil {
+	input := bytes.NewBufferString("b")
+	if err := wrapper.SetSecret("a", input.Bytes()); err == nil {
 		t.Error(err)
 	}
 
@@ -70,14 +81,15 @@ func TestCreateSecretVersion(t *testing.T) {
 	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
 
 	wrapper := NewScaleWayWrapper(setupData)
-	if err := wrapper.SetSecret("testSecret", "b"); err != nil {
+	input := bytes.NewBufferString("c")
+	if err := wrapper.SetSecret("testSecret", input.Bytes()); err != nil {
 		t.Error(err)
 	}
 	secretHolder, err := wrapper.ListSecrets()
 	if err != nil {
 		t.Error(err)
 	}
-	if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[0], "c"); err != nil {
+	if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[0], []byte("c")); err != nil {
 		t.Error(err)
 	}
 	if versionHolder, err := wrapper.ListSecretVersions(secretHolder.Secrets[0].ID); err != nil {
@@ -95,11 +107,12 @@ func TestListSecretsWName(t *testing.T) {
 	godotenv.Load(".env")
 	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
 	wrapper := NewScaleWayWrapper(setupData)
-
-	if err := wrapper.SetSecret("tester", "test"); err != nil {
+	input1 := bytes.NewBufferString("test")
+	input2 := bytes.NewBufferString("test2")
+	if err := wrapper.SetSecret("tester", input1.Bytes()); err != nil {
 		t.Error(err)
 	}
-	if err := wrapper.SetSecret("tester2", "test2"); err != nil {
+	if err := wrapper.SetSecret("tester2", input2.Bytes()); err != nil {
 		t.Error(err)
 	}
 	holder, err := wrapper.ListSecrets("tester")
@@ -110,5 +123,94 @@ func TestListSecretsWName(t *testing.T) {
 	if int(holder.TotalCount) != want {
 		t.Errorf("Got %d secrets, wanted %d", holder.TotalCount, want)
 	}
+	t.Cleanup(func() { CleanUp(t) })
+}
+
+func TestValues(t *testing.T) {
+	t.Run("test with string", func(*testing.T) {
+		godotenv.Load(".env")
+		var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
+		wrapper := NewScaleWayWrapper(setupData)
+		const want = "test"
+		input := bytes.NewBufferString("test")
+		err := wrapper.SetSecret("test3", input.Bytes())
+		if err != nil {
+			t.Error(err)
+		}
+		secretHolder, err := wrapper.ListSecrets("test3")
+		if err != nil {
+			t.Error(err)
+		} else if secretHolder.TotalCount != 1 {
+			t.Error("Got more or less than one secret")
+		}
+		secret := secretHolder.Secrets[0]
+		secretVersions, err := wrapper.ListSecretVersions(secret.ID)
+		if err != nil {
+			t.Error(err)
+		}
+		if secretVersions.TotalCount != 1 {
+			t.Error("Got more or less than one secret version")
+		}
+		secretV := secretVersions.SecretVersions[0]
+		revision := strconv.FormatUint(uint64(secretV.Revision), 10)
+		data, err := wrapper.GetSecretData("test3", revision)
+		if err != nil {
+			t.Error(err)
+		}
+		t.Log(string(data))
+		if string(data) != want {
+			t.Errorf("Got %s, wanted %s", string(data), want)
+		}
+	})
+	t.Run("test with zertifikate key", func(*testing.T) {
+		godotenv.Load(".env")
+		var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
+		wrapper := NewScaleWayWrapper(setupData)
+
+		generatedKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+		if err != nil {
+			t.Error(err)
+		}
+		bytes, err := x509.MarshalECPrivateKey(generatedKey)
+		if err != nil {
+			t.Error(err)
+		}
+		privPemBlock := &pem.Block{
+			Type:  "EC PRIVATE KEY",
+			Bytes: bytes,
+		}
+		encodedBytes := pem.EncodeToMemory(privPemBlock)
+		if err != nil {
+			t.Error(err)
+		}
+		err = wrapper.SetSecret("keyTest", encodedBytes)
+		if err != nil {
+			t.Error(err)
+		}
+		secretHolder, err := wrapper.ListSecrets("keyTest")
+		if err != nil {
+			t.Error(err)
+		} else if secretHolder.TotalCount != 1 {
+			t.Error("Got more or less than one secret")
+		}
+		secret := secretHolder.Secrets[0]
+		secretVersions, err := wrapper.ListSecretVersions(secret.ID)
+		if err != nil {
+			t.Error(err)
+		}
+		if secretVersions.TotalCount != 1 {
+			t.Error("Got more or less than one secret version")
+		}
+		secretV := secretVersions.SecretVersions[0]
+		revision := strconv.FormatUint(uint64(secretV.Revision), 10)
+		data, err := wrapper.GetSecretData("keyTest", revision)
+		if err != nil {
+			t.Error(err)
+		}
+		bloc, _ := pem.Decode(data)
+		if reflect.DeepEqual(bloc.Bytes, bytes) == false {
+			t.Errorf("Got %s, wanted %s", string(data), bytes)
+		}
+	})
 	t.Cleanup(func() { CleanUp(t) })
 }
