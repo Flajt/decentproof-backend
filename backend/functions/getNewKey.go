@@ -1,27 +1,34 @@
 package decentproof_functions
 
 import (
-	"fmt"
-	"io"
 	"net/http"
-	"net/http/httputil"
+
+	decentproof_functions "github.com/Flajt/decentproof-backend/decentproof-functions/helper"
 )
 
-func HandleWithCors(w http.ResponseWriter, r *http.Request) {
-	dump, err := httputil.DumpRequest(r, true)
-	if err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+func Handler(w http.ResponseWriter, r *http.Request) {
+	authHeader := r.Header.Get("X-Appcheck")
+	if authHeader == "" {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("Unauthorized"))
 		return
 	}
-	fmt.Printf("%q", dump)
-
-	// Sets the response headers to allow CORS requests.
-
-	w.Header().Set("Content-type", "text/plain")
-	w.WriteHeader(http.StatusOK)
-
-	_, err = io.WriteString(w, "This function is allowing most CORS requests")
+	appCheckWrapper := decentproof_functions.NewAppcheckWrapper()
+	success, err := appCheckWrapper.CheckApp(authHeader)
 	if err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("Unauthorized"))
+		return
+	} else {
+		apiKeys := decentproof_functions.RetrievApiKeys()
+		if success {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(apiKeys[1]))
+			return
+		} else {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("Unauthorized"))
+			return
+		}
 	}
 }

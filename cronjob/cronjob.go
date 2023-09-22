@@ -12,11 +12,8 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	var setupData = scw_secret_manager.ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
 
 	//TODO; Find a way to make things less messy
-	wrapper, err := scw_secret_manager.NewScaleWayWrapper(setupData)
-	if err != nil {
-		returnError(w, err)
-		panic(err)
-	}
+	wrapper := scw_secret_manager.NewScaleWayWrapper(setupData)
+
 	// Step one: Check for existing keys
 	secretHolder, err := wrapper.ListSecrets("apiKey")
 	if err != nil {

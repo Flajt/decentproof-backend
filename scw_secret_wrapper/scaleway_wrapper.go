@@ -29,7 +29,7 @@ type ScaleWaySetupData struct {
 }
 
 // Used godotenv to read you enviroment variables
-func NewScaleWayWrapper(setupData ScaleWaySetupData) (*ScalewayWrapper, error) {
+func NewScaleWayWrapper(setupData ScaleWaySetupData) *ScalewayWrapper {
 
 	if client, err := scw.NewClient(
 		scw.WithAuth(setupData.AccessKey, setupData.SecretKey),
@@ -39,7 +39,7 @@ func NewScaleWayWrapper(setupData ScaleWaySetupData) (*ScalewayWrapper, error) {
 		panic(err)
 	} else {
 		api := secret_manager.NewAPI(client)
-		return &ScalewayWrapper{Client: *client, Api: api, PROJECT_ID: setupData.ProjectID}, nil
+		return &ScalewayWrapper{Client: *client, Api: api, PROJECT_ID: setupData.ProjectID}
 	}
 }
 

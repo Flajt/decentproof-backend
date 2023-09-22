@@ -38,7 +38,7 @@ func TestCronjob(t *testing.T) {
 	godotenv.Load("../.env")
 	var setupData = scw_wrapper.ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
 	t.Run("with zero entries", func(t *testing.T) {
-		wrapper, _ := scw_wrapper.NewScaleWayWrapper(setupData)
+		wrapper := scw_wrapper.NewScaleWayWrapper(setupData)
 		decentproof_cronjob.Handle(&MockResponseWriter{}, nil)
 		want := 1
 		secretHolder, err := wrapper.ListSecrets()
@@ -59,7 +59,7 @@ func TestCronjob(t *testing.T) {
 	})
 
 	t.Run("with two entries", func(t *testing.T) {
-		wrapper, _ := scw_wrapper.NewScaleWayWrapper(setupData)
+		wrapper := scw_wrapper.NewScaleWayWrapper(setupData)
 		if err := wrapper.SetSecret("apiKey", "test"); err != nil {
 			t.Error(err)
 		}

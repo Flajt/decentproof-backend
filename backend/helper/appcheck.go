@@ -12,17 +12,16 @@ type AppcheckWrapper struct {
 	App firebase.App
 }
 
-// DocString mate
-func NewAppcheckWrapper() (*AppcheckWrapper, error) {
+func NewAppcheckWrapper() *AppcheckWrapper {
 	//Important GOOGLE_ADMIN_SDK_CREDS needs to be set for this to work
 	if json, success := os.LookupEnv("GOOGLE_ADMIN_SDK_CREDS"); !success {
 		panic("Admin Creds not found in enviroment")
 	} else {
 		opt := option.WithCredentialsJSON([]byte(json))
 		if app, err := firebase.NewApp(context.Background(), nil, opt); err != nil {
-			return nil, err
+			panic(err)
 		} else {
-			return &AppcheckWrapper{App: *app}, nil
+			return &AppcheckWrapper{App: *app}
 		}
 	}
 }
