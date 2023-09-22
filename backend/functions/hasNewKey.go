@@ -21,8 +21,8 @@ func HandleHasNewKey(w http.ResponseWriter, r *http.Request) {
 				w.Write([]byte("Internal Server Error"))
 				return
 			}
-			w.WriteHeader(http.StatusOK)
 			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
 			w.Write(responseBytes)
 			return
 		} else if keys[1] == requestKey {
@@ -33,8 +33,8 @@ func HandleHasNewKey(w http.ResponseWriter, r *http.Request) {
 				w.Write([]byte("Internal Server Error"))
 				return
 			}
-			w.WriteHeader(http.StatusOK)
 			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
 			w.Write(responseBytes)
 			return
 		} else {
@@ -45,8 +45,8 @@ func HandleHasNewKey(w http.ResponseWriter, r *http.Request) {
 				w.Write([]byte("Internal Server Error"))
 				return
 			}
-			w.WriteHeader(http.StatusOK)
 			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
 			w.Write(responseBytes)
 			return
 		}
