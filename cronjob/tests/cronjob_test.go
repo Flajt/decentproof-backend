@@ -2,9 +2,11 @@ package decentproof_cronjob
 
 import (
 	"net/http"
+	"os"
 	"testing"
 
 	scw_wrapper "github.com/Flajt/decentproof-backend/scw_secret_wrapper"
+	"github.com/joho/godotenv"
 
 	decentproof_cronjob "github.com/Flajt/decentproof-backend/decentproof-cron"
 )
@@ -33,8 +35,10 @@ func (m *MockResponseWriter) Write(data []byte) (int, error) {
 }
 
 func TestCronjob(t *testing.T) {
-	t.Run("with zero entrie", func(t *testing.T) {
-		wrapper, _ := scw_wrapper.NewScaleWayWrapper()
+	godotenv.Load("../.env")
+	var setupData = scw_wrapper.ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
+	t.Run("with zero entries", func(t *testing.T) {
+		wrapper, _ := scw_wrapper.NewScaleWayWrapper(setupData)
 		decentproof_cronjob.Handle(&MockResponseWriter{}, nil)
 		want := 1
 		secretHolder, err := wrapper.ListSecrets()
@@ -55,7 +59,7 @@ func TestCronjob(t *testing.T) {
 	})
 
 	t.Run("with two entries", func(t *testing.T) {
-		wrapper, _ := scw_wrapper.NewScaleWayWrapper()
+		wrapper, _ := scw_wrapper.NewScaleWayWrapper(setupData)
 		if err := wrapper.SetSecret("apiKey", "test"); err != nil {
 			t.Error(err)
 		}

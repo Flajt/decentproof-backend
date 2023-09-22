@@ -1,10 +1,6 @@
 package scw_secret_manager
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/joho/godotenv"
 	secret_manager "github.com/scaleway/scaleway-sdk-go/api/secret/v1alpha1"
 	"github.com/scaleway/scaleway-sdk-go/scw"
 )
@@ -25,25 +21,25 @@ type ScalewayWrapper struct {
 	PROJECT_ID string
 }
 
+type ScaleWaySetupData struct {
+	AccessKey string
+	SecretKey string
+	ProjectID string
+	Region    string
+}
+
 // Used godotenv to read you enviroment variables
-func NewScaleWayWrapper() (*ScalewayWrapper, error) {
-	var envLoadingLocation = ".env"
-	if err := godotenv.Load(envLoadingLocation); err != nil {
-		fmt.Println(err)
-	}
-	accessKey := os.Getenv("SCW_ACCESS_KEY")
-	secretKey := os.Getenv("SCW_SECRET_KEY")
-	projectID := os.Getenv("SCW_DEFAULT_PROJECT_ID")
+func NewScaleWayWrapper(setupData ScaleWaySetupData) (*ScalewayWrapper, error) {
 
 	if client, err := scw.NewClient(
-		scw.WithAuth(accessKey, secretKey),
-		scw.WithDefaultRegion(scw.RegionNlAms),
-		scw.WithDefaultProjectID(projectID),
+		scw.WithAuth(setupData.AccessKey, setupData.SecretKey),
+		scw.WithDefaultRegion(scw.Region(setupData.Region)),
+		scw.WithDefaultProjectID(setupData.ProjectID),
 	); err != nil {
 		panic(err)
 	} else {
 		api := secret_manager.NewAPI(client)
-		return &ScalewayWrapper{Client: *client, Api: api, PROJECT_ID: projectID}, nil
+		return &ScalewayWrapper{Client: *client, Api: api, PROJECT_ID: setupData.ProjectID}, nil
 	}
 }
 
@@ -87,10 +83,10 @@ func (scalewayWrapper *ScalewayWrapper) GetSecretData(secretName string, revisio
 func (scalewayWrapper *ScalewayWrapper) SetSecret(secretName string, secretValue string) error {
 	inputBytes := []byte(secretValue)
 
-	if secret, err := scalewayWrapper.Api.CreateSecret(&secret_manager.CreateSecretRequest{Region: scw.RegionNlAms, Name: secretName, Type: secret_manager.SecretTypeUnknownSecretType}); err != nil {
+	if secret, err := scalewayWrapper.Api.CreateSecret(&secret_manager.CreateSecretRequest{Name: secretName, Type: secret_manager.SecretTypeUnknownSecretType}); err != nil {
 		return err
 	} else {
-		if _, err := scalewayWrapper.Api.CreateSecretVersion(&secret_manager.CreateSecretVersionRequest{SecretID: secret.ID, Region: scw.RegionNlAms, Data: inputBytes}); err != nil {
+		if _, err := scalewayWrapper.Api.CreateSecretVersion(&secret_manager.CreateSecretVersionRequest{SecretID: secret.ID, Data: inputBytes}); err != nil {
 			return err
 		}
 		return nil
@@ -99,21 +95,21 @@ func (scalewayWrapper *ScalewayWrapper) SetSecret(secretName string, secretValue
 
 func (scalewayWrapper *ScalewayWrapper) CreateNewSecretVersion(secret secret_manager.Secret, data string) error {
 	inputBytes := []byte(data)
-	if _, err := scalewayWrapper.Api.CreateSecretVersion(&secret_manager.CreateSecretVersionRequest{SecretID: secret.ID, Region: scw.RegionNlAms, Data: inputBytes}); err != nil {
+	if _, err := scalewayWrapper.Api.CreateSecretVersion(&secret_manager.CreateSecretVersionRequest{SecretID: secret.ID, Data: inputBytes}); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (scalewayWrapper *ScalewayWrapper) DeleteSecret(id string) error {
-	if err := scalewayWrapper.Api.DeleteSecret(&secret_manager.DeleteSecretRequest{SecretID: id, Region: scw.RegionNlAms}); err != nil {
+	if err := scalewayWrapper.Api.DeleteSecret(&secret_manager.DeleteSecretRequest{SecretID: id}); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (scalewayWrapper *ScalewayWrapper) DeleteSecretVersion(id string, revision string) error {
-	if _, err := scalewayWrapper.Api.DestroySecretVersion(&secret_manager.DestroySecretVersionRequest{SecretID: id, Region: scw.RegionNlAms, Revision: revision}); err != nil {
+	if _, err := scalewayWrapper.Api.DestroySecretVersion(&secret_manager.DestroySecretVersionRequest{SecretID: id, Revision: revision}); err != nil {
 		return err
 	}
 	return nil

@@ -1,10 +1,15 @@
 package scw_secret_manager
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
 // /Removes all created secrets, used for testing
 func CleanUp(t *testing.T) {
-	if wrapper, err := NewScaleWayWrapper(); err != nil {
+	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
+
+	if wrapper, err := NewScaleWayWrapper(setupData); err != nil {
 		t.Error(err)
 		t.Log("MANUAL CLEAN UP REQUIRED !!!!!!")
 	} else {

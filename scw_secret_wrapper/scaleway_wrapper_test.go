@@ -1,19 +1,28 @@
 package scw_secret_manager
 
 import (
+	"os"
 	"testing"
+
+	"github.com/joho/godotenv"
 )
 
 //TODO: Consider edge cases
 
 func TestClientCreation(t *testing.T) {
-	if _, err := NewScaleWayWrapper(); err != nil {
+	godotenv.Load(".env")
+	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
+
+	if _, err := NewScaleWayWrapper(setupData); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestSecretCreation(t *testing.T) {
-	if wrapper, err := NewScaleWayWrapper(); err != nil {
+	godotenv.Load(".env")
+	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
+
+	if wrapper, err := NewScaleWayWrapper(setupData); err != nil {
 		t.Error(err)
 	} else {
 		if err := wrapper.SetSecret("test", "test"); err != nil {
@@ -27,8 +36,11 @@ func TestSecretCreation(t *testing.T) {
 }
 
 func TestListSecrets(t *testing.T) {
+	godotenv.Load(".env")
+	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
+
 	want := 1
-	if wrapper, err := NewScaleWayWrapper(); err != nil {
+	if wrapper, err := NewScaleWayWrapper(setupData); err != nil {
 		t.Error(err)
 	} else {
 		if err := wrapper.SetSecret("test", "b"); err != nil {
@@ -48,7 +60,9 @@ func TestListSecrets(t *testing.T) {
 
 // Tests if the secret creation fails if the secret name is too short
 func TestFailingSecretCreation(t *testing.T) {
-	if wrapper, err := NewScaleWayWrapper(); err != nil {
+	godotenv.Load(".env")
+	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
+	if wrapper, err := NewScaleWayWrapper(setupData); err != nil {
 		t.Error(err)
 	} else {
 		if err := wrapper.SetSecret("a", "b"); err == nil {
@@ -59,8 +73,11 @@ func TestFailingSecretCreation(t *testing.T) {
 }
 
 func TestCreateSecretVersion(t *testing.T) {
+	godotenv.Load(".env")
 	///Tests if the secret version is created for a particular secret
-	if wrapper, err := NewScaleWayWrapper(); err != nil {
+	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
+
+	if wrapper, err := NewScaleWayWrapper(setupData); err != nil {
 		t.Error(err)
 	} else {
 		if err := wrapper.SetSecret("testSecret", "b"); err != nil {
@@ -85,7 +102,9 @@ func TestCreateSecretVersion(t *testing.T) {
 }
 
 func TestListSecretsWName(t *testing.T) {
-	wrapper, err := NewScaleWayWrapper()
+	godotenv.Load(".env")
+	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
+	wrapper, err := NewScaleWayWrapper(setupData)
 	if err != nil {
 		t.Error(err)
 	}
