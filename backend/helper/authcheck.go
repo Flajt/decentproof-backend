@@ -2,27 +2,20 @@ package decentproof_functions
 
 import (
 	"net/http"
-	"os"
+	"strings"
 )
 
-// Not yet functional
-func authenticate(req *http.Request) bool {
-	if isDebug, success := os.LookupEnv("DEBUG"); success {
-		if isDebug == "true" {
-			return true
-		} else {
-			///TODO: Implement this
-			return verifyApiKey(req)
-
+func VerifyApiKey(req *http.Request, apiKeys []string) bool {
+	if authHeader := req.Header.Get("Authorization"); authHeader != "" {
+		apiKey := strings.Split(authHeader, " ")[1]
+		match := false
+		for _, key := range apiKeys {
+			if apiKey == key {
+				match = true
+				break
+			}
 		}
-
-	}
-	return verifyApiKey(req)
-}
-
-func verifyApiKey(req *http.Request) bool {
-	if req.Header.Get("Authorization") != "" {
-		return true
+		return match
 	} else {
 		return false
 	}

@@ -6,7 +6,7 @@ import (
 	decentproof_functions "github.com/Flajt/decentproof-backend/decentproof-functions/helper"
 )
 
-func Handler(w http.ResponseWriter, r *http.Request) {
+func HandleGetNewKey(w http.ResponseWriter, r *http.Request) {
 	authHeader := r.Header.Get("X-Appcheck")
 	if authHeader == "" {
 		w.WriteHeader(http.StatusUnauthorized)
