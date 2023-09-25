@@ -27,7 +27,7 @@ func RetrievApiKeys() []string {
 		}
 		var apiKeys []string
 		for _, secret := range secretVersions.SecretVersions {
-			data, err := client.GetSecretData(secret.SecretID, strconv.FormatUint(uint64(secret.Revision), 10))
+			data, err := client.GetSecretData("apiKey", strconv.FormatUint(uint64(secret.Revision), 10))
 			apiKeys = append(apiKeys, string(data))
 			if err != nil {
 				/// Should also be impossible to not get the data if the rest is true
