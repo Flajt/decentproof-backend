@@ -35,7 +35,7 @@ func TestSecretCreation(t *testing.T) {
 
 	wrapper := NewScaleWayWrapper(setupData)
 	input := bytes.NewBufferString("test")
-	if err := wrapper.SetSecret("test", input.Bytes()); err != nil {
+	if _, err := wrapper.SetSecret("test", input.Bytes()); err != nil {
 		t.Error(err)
 		t.Logf("THIS IS OK IF YOU DONT CONNECT TO THE SCALEWAY CONSOLE")
 	}
@@ -52,7 +52,7 @@ func TestListSecrets(t *testing.T) {
 	want := 1
 	wrapper := NewScaleWayWrapper(setupData)
 	input := bytes.NewBufferString("test")
-	if err := wrapper.SetSecret("test", input.Bytes()); err != nil {
+	if _, err := wrapper.SetSecret("test", input.Bytes()); err != nil {
 		t.Error(err)
 	}
 	if secrets, err := wrapper.ListSecrets(); err != nil {
@@ -73,7 +73,7 @@ func TestFailingSecretCreation(t *testing.T) {
 	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
 	wrapper := NewScaleWayWrapper(setupData)
 	input := bytes.NewBufferString("b")
-	if err := wrapper.SetSecret("a", input.Bytes()); err == nil {
+	if _, err := wrapper.SetSecret("a", input.Bytes()); err == nil {
 		t.Error(err)
 	}
 
@@ -87,17 +87,15 @@ func TestCreateSecretVersion(t *testing.T) {
 
 	wrapper := NewScaleWayWrapper(setupData)
 	input := bytes.NewBufferString("c")
-	if err := wrapper.SetSecret("testSecret", input.Bytes()); err != nil {
-		t.Error(err)
-	}
-	secretHolder, err := wrapper.ListSecrets()
+	secret, err := wrapper.SetSecret("testSecret", input.Bytes())
 	if err != nil {
 		t.Error(err)
 	}
-	if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[0], []byte("c")); err != nil {
+
+	if err := wrapper.CreateNewSecretVersion(*secret, []byte("c")); err != nil {
 		t.Error(err)
 	}
-	if versionHolder, err := wrapper.ListSecretVersions(secretHolder.Secrets[0].ID); err != nil {
+	if versionHolder, err := wrapper.ListSecretVersions(secret.ID); err != nil {
 		t.Error(err)
 	} else {
 		if versionHolder.TotalCount != 2 {
@@ -114,10 +112,10 @@ func TestListSecretsWName(t *testing.T) {
 	wrapper := NewScaleWayWrapper(setupData)
 	input1 := bytes.NewBufferString("test")
 	input2 := bytes.NewBufferString("test2")
-	if err := wrapper.SetSecret("tester", input1.Bytes()); err != nil {
+	if _, err := wrapper.SetSecret("tester", input1.Bytes()); err != nil {
 		t.Error(err)
 	}
-	if err := wrapper.SetSecret("tester2", input2.Bytes()); err != nil {
+	if _, err := wrapper.SetSecret("tester2", input2.Bytes()); err != nil {
 		t.Error(err)
 	}
 	holder, err := wrapper.ListSecrets("tester")
@@ -138,7 +136,7 @@ func TestValues(t *testing.T) {
 		wrapper := NewScaleWayWrapper(setupData)
 		const want = "test"
 		input := bytes.NewBufferString("test")
-		err := wrapper.SetSecret("test3", input.Bytes())
+		secret, err := wrapper.SetSecret("test3", input.Bytes())
 		if err != nil {
 			t.Error(err)
 		}
@@ -148,7 +146,6 @@ func TestValues(t *testing.T) {
 		} else if secretHolder.TotalCount != 1 {
 			t.Error("Got more or less than one secret")
 		}
-		secret := secretHolder.Secrets[0]
 		secretVersions, err := wrapper.ListSecretVersions(secret.ID)
 		if err != nil {
 			t.Error(err)
@@ -188,7 +185,7 @@ func TestValues(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		err = wrapper.SetSecret("keyTest", encodedBytes)
+		secret, err := wrapper.SetSecret("keyTest", encodedBytes)
 		if err != nil {
 			t.Error(err)
 		}
@@ -198,7 +195,6 @@ func TestValues(t *testing.T) {
 		} else if secretHolder.TotalCount != 1 {
 			t.Error("Got more or less than one secret")
 		}
-		secret := secretHolder.Secrets[0]
 		secretVersions, err := wrapper.ListSecretVersions(secret.ID)
 		if err != nil {
 			t.Error(err)

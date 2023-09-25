@@ -4,10 +4,13 @@ go 1.20
 
 require (
 	firebase.google.com/go/v4 v4.12.0
+	github.com/Flajt/decentproof-backend/scw_secret_wrapper v0.0.0-00010101000000-000000000000
+	github.com/joho/godotenv v1.5.1
 	google.golang.org/api v0.142.0
 )
 
 replace github.com/Flajt/decentproof-backend/scw_secret_wrapper => ../scw_secret_wrapper
+
 require (
 	cloud.google.com/go v0.110.8 // indirect
 	cloud.google.com/go/compute v1.23.0 // indirect
@@ -16,7 +19,6 @@ require (
 	cloud.google.com/go/iam v1.1.1 // indirect
 	cloud.google.com/go/longrunning v0.5.1 // indirect
 	cloud.google.com/go/storage v1.30.1 // indirect
-	github.com/Flajt/decentproof-backend/scw_secret_wrapper v0.0.0-00010101000000-000000000000 // indirect
 	github.com/MicahParks/keyfunc v1.9.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect

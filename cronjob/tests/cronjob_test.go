@@ -61,14 +61,12 @@ func TestCronjob(t *testing.T) {
 	t.Run("with two entries", func(t *testing.T) {
 		wrapper := scw_wrapper.NewScaleWayWrapper(setupData)
 		testInputAsBytes := []byte("test")
-		if err := wrapper.SetSecret("apiKey", testInputAsBytes); err != nil {
-			t.Error(err)
-		}
-		secretHolder1, err := wrapper.ListSecrets("apiKey")
+		secret, err := wrapper.SetSecret("apiKey", testInputAsBytes)
 		if err != nil {
 			t.Error(err)
 		}
-		if err := wrapper.CreateNewSecretVersion(*secretHolder1.Secrets[0], []byte("test2")); err != nil {
+
+		if err := wrapper.CreateNewSecretVersion(*secret, []byte("test2")); err != nil {
 			t.Error(err)
 		}
 		decentproof_cronjob.Handle(&MockResponseWriter{}, nil)

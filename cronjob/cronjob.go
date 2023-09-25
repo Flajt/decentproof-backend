@@ -23,7 +23,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	if secretHolder.TotalCount == 0 {
 		apiKey := GenerateApiKey()
 		keyAsBytes := []byte(apiKey)
-		if err := wrapper.SetSecret("apiKey", keyAsBytes); err != nil {
+		if _, err := wrapper.SetSecret("apiKey", keyAsBytes); err != nil {
 			panic(err)
 		}
 		w.Header().Set("Content-type", "text/plain")
