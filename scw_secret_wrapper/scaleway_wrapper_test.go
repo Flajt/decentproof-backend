@@ -35,9 +35,13 @@ func TestSecretCreation(t *testing.T) {
 
 	wrapper := NewScaleWayWrapper(setupData)
 	input := bytes.NewBufferString("test")
-	if _, err := wrapper.SetSecret("test", input.Bytes()); err != nil {
+	secret, err := wrapper.SetSecret("test", input.Bytes())
+	if err != nil {
 		t.Error(err)
 		t.Logf("THIS IS OK IF YOU DONT CONNECT TO THE SCALEWAY CONSOLE")
+	}
+	if secret == nil {
+		t.Errorf("Secret is nil")
 	}
 
 	t.Cleanup(func() {

@@ -88,14 +88,15 @@ func (scalewayWrapper *ScalewayWrapper) GetSecretData(secretName string, revisio
 
 func (scalewayWrapper *ScalewayWrapper) SetSecret(secretName string, secretValue []byte) (*secret_manager.Secret, error) {
 
-	if secret, err := scalewayWrapper.Api.CreateSecret(&secret_manager.CreateSecretRequest{Name: secretName, Type: secret_manager.SecretTypeUnknownSecretType}); err != nil {
-		return secret, err
-	} else {
-		if _, err := scalewayWrapper.Api.CreateSecretVersion(&secret_manager.CreateSecretVersionRequest{SecretID: secret.ID, Data: secretValue}); err != nil {
-			return secret, err
-		}
-		return secret, nil
+	secret, err := scalewayWrapper.Api.CreateSecret(&secret_manager.CreateSecretRequest{Name: secretName, Type: secret_manager.SecretTypeUnknownSecretType})
+	if err != nil {
+		return nil, err
 	}
+	if _, err := scalewayWrapper.Api.CreateSecretVersion(&secret_manager.CreateSecretVersionRequest{SecretID: secret.ID, Data: secretValue}); err != nil {
+		return nil, err
+	}
+	return secret, nil
+
 }
 
 func (scalewayWrapper *ScalewayWrapper) CreateNewSecretVersion(secret secret_manager.Secret, data []byte) error {
