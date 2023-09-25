@@ -19,9 +19,14 @@ import (
 
 func TestClientCreation(t *testing.T) {
 	godotenv.Load(".env")
-	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
-	// Would panic if the client creation fails
-	NewScaleWayWrapper(setupData)
+	t.Run("with 'manual loading' ", func(t *testing.T) {
+		var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
+		// Would panic if the client creation fails
+		NewScaleWayWrapper(setupData)
+	})
+	t.Run("with 'automatic loading' ", func(t *testing.T) {
+		NewScaleWayWrapperFromEnv()
+	})
 }
 
 func TestSecretCreation(t *testing.T) {

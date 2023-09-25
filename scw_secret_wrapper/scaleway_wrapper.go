@@ -1,6 +1,8 @@
 package scw_secret_manager
 
 import (
+	"os"
+
 	secret_manager "github.com/scaleway/scaleway-sdk-go/api/secret/v1alpha1"
 	"github.com/scaleway/scaleway-sdk-go/scw"
 )
@@ -41,6 +43,9 @@ func NewScaleWayWrapper(setupData ScaleWaySetupData) *ScalewayWrapper {
 		api := secret_manager.NewAPI(client)
 		return &ScalewayWrapper{Client: *client, Api: api, PROJECT_ID: setupData.ProjectID}
 	}
+}
+func NewScaleWayWrapperFromEnv() *ScalewayWrapper {
+	return NewScaleWayWrapper(ScaleWaySetupData{AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), Region: os.Getenv("SCW_DEFAULT_REGION")})
 }
 
 func (scalewayWrapper *ScalewayWrapper) ListSecrets(names ...string) (SecretHolder, error) {
