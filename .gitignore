@@ -5,3 +5,18 @@ decentproof-66628-firebase-adminsdk-5po37-26b01e1c7e.json
 node_modules/
 .DS_STORE
 *.zip
+
+# Go specific files taken from: https://github.com/github/gitignore/blob/main/Go.gitignore
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
