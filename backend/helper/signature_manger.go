@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
+	"strconv"
 
 	secret_wrapper "github.com/Flajt/decentproof-backend/scw_secret_wrapper"
 )
@@ -19,20 +20,23 @@ func (sm *SignatureManager) InitSignatureManager() error {
 	if err != nil {
 		return err
 	}
-	encryptionKeySecret := secretHolder.Secrets[0]
-	secretVersionHolder, err := sm.secretManager.ListSecretVersions(encryptionKeySecret.ID)
+	signatureKeySecret := secretHolder.Secrets[0]
+	secretVersionHolder, err := sm.secretManager.ListSecretVersions(signatureKeySecret.ID)
 	if err != nil {
 		return err
 	}
-	var encryptionKeyIndex = -2
+	var signatureKeyIndex = -2
 	for index, secretVersion := range secretVersionHolder.SecretVersions {
 		if secretVersion.IsLatest {
-			encryptionKeyIndex = index
+			signatureKeyIndex = index
 			break
 		}
 	}
-	encryptionKeyVersionData := secretVersionHolder.SecretVersions[encryptionKeyIndex]
-	key, err := sm.secretManager.GetSecretData(encryptionKeySecret.ID, encryptionKeyVersionData.SecretID)
+	if signatureKeyIndex == -2 {
+		panic("Secret not found")
+	}
+	signatureKeyVersionData := secretVersionHolder.SecretVersions[signatureKeyIndex]
+	key, err := sm.secretManager.GetSecretData(signatureKeySecret.Name, strconv.FormatUint(uint64(signatureKeyVersionData.Revision), 10))
 	if err != nil {
 		return err
 	}
@@ -50,4 +54,8 @@ func NewSignatureManager(secretManager *secret_wrapper.ScalewayWrapper) *Signatu
 
 func (sm *SignatureManager) SignData(data []byte) ([]byte, error) {
 	return ecdsa.SignASN1(rand.Reader, &sm.privKey, data)
+}
+
+func (sm *SignatureManager) VerifyData(data []byte, signature []byte) bool {
+	return ecdsa.VerifyASN1(&sm.privKey.PublicKey, data, signature)
 }
