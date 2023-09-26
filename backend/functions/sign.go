@@ -3,7 +3,6 @@ package decentproof_functions
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 
 	helper "github.com/Flajt/decentproof-backend/decentproof-functions/helper"
 	json_models "github.com/Flajt/decentproof-backend/decentproof-functions/json_models"
@@ -18,12 +17,8 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Unauthorized"))
 		return
 	}
-	scwSetupData := secret_wrapper.ScaleWaySetupData{}
-	scwSetupData.AccessKey = os.Getenv("SCW_ACCESS_KEY")
-	scwSetupData.SecretKey = os.Getenv("SCW_SECRET_KEY")
-	scwSetupData.Region = os.Getenv("SCW_DEFAULT_REGION")
-	scwSetupData.ProjectID = os.Getenv("SCW_DEFAULT_PROJECT_ID")
-	scw_wrapper := secret_wrapper.NewScaleWayWrapper(scwSetupData)
+
+	scw_wrapper := secret_wrapper.NewScaleWayWrapperFromEnv()
 	signatureManager := helper.NewSignatureManager(scw_wrapper)
 	signatureManager.InitSignatureManager()
 	jsonDecoder := json.NewDecoder(r.Body)
