@@ -53,6 +53,8 @@ functions:
   get-new-key:
     handler: get_new_key/HandleGetNewKey
     httpOption: redirected
+    secret:
+      GOOGLE_ADMIN_SDK_CREDS: ${env:GOOGLE_ADMIN_SDK_CREDS}
 
   cron-job:
     handler: cronjob/Handle
