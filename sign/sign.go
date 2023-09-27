@@ -1,11 +1,10 @@
-package decentproof_functions
+package sign
 
 import (
 	"encoding/json"
 	"net/http"
 
-	helper "github.com/Flajt/decentproof-backend/decentproof-functions/helper"
-	json_models "github.com/Flajt/decentproof-backend/decentproof-functions/json_models"
+	"github.com/Flajt/decentproof-backend/helper"
 	secret_wrapper "github.com/Flajt/decentproof-backend/scw_secret_wrapper"
 )
 
@@ -19,10 +18,10 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 	}
 
 	scw_wrapper := secret_wrapper.NewScaleWayWrapperFromEnv()
-	signatureManager := helper.NewSignatureManager(scw_wrapper)
+	signatureManager := NewSignatureManager(scw_wrapper)
 	signatureManager.InitSignatureManager()
 	jsonDecoder := json.NewDecoder(r.Body)
-	var holder json_models.SignatureRequestBody
+	var holder SignatureRequestBody
 	if err := jsonDecoder.Decode(&holder); err != nil {
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusBadRequest)
@@ -36,7 +35,7 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Internal Server Error"))
 		return
 	}
-	signatureResp := json_models.SignatureResponseBody{Signature: string(signatureBytes)}
+	signatureResp := SignatureResponseBody{Signature: string(signatureBytes)}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	respBytes, err := json.Marshal(signatureResp)

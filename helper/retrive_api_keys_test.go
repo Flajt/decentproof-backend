@@ -1,9 +1,8 @@
-package decentproof_functions
+package helper
 
 import (
 	"testing"
 
-	helper "github.com/Flajt/decentproof-backend/decentproof-functions/helper"
 	scw_secret_wrapper "github.com/Flajt/decentproof-backend/scw_secret_wrapper"
 	"github.com/joho/godotenv"
 )
@@ -17,7 +16,7 @@ func TestRetrievApiKeys(t *testing.T) {
 
 			}
 		}()
-		keys := helper.RetrievApiKeys()
+		keys := RetrievApiKeys()
 		if len(keys) != 0 {
 			t.Error("Got keys, wanted none")
 		}
@@ -29,7 +28,7 @@ func TestRetrievApiKeys(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		keys := helper.RetrievApiKeys()
+		keys := RetrievApiKeys()
 		if len(keys) != 1 {
 			t.Errorf("Got %d keys, wanted one", len(keys))
 		}
@@ -46,7 +45,7 @@ func TestRetrievApiKeys(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		keys := helper.RetrievApiKeys()
+		keys := RetrievApiKeys()
 		if len(keys) != 2 {
 			t.Errorf("Got %d keys, wanted one", len(keys))
 		}

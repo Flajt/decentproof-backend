@@ -1,4 +1,4 @@
-package decentproof_functions
+package helper
 
 import (
 	"os"

@@ -1,9 +1,9 @@
-package decentproof_functions
+package get_new_key
 
 import (
 	"net/http"
 
-	decentproof_functions "github.com/Flajt/decentproof-backend/decentproof-functions/helper"
+	"github.com/Flajt/decentproof-backend/helper"
 )
 
 func HandleGetNewKey(w http.ResponseWriter, r *http.Request) {
@@ -13,14 +13,14 @@ func HandleGetNewKey(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Unauthorized"))
 		return
 	}
-	appCheckWrapper := decentproof_functions.NewAppcheckWrapper()
+	appCheckWrapper := NewAppcheckWrapper()
 	success, err := appCheckWrapper.CheckApp(authHeader)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("Unauthorized"))
 		return
 	} else {
-		apiKeys := decentproof_functions.RetrievApiKeys()
+		apiKeys := helper.RetrievApiKeys()
 		if success {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(apiKeys[1]))

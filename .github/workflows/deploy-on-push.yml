@@ -1,0 +1,20 @@
+name: Deploy on PR
+on:
+    push:
+        branches:
+            - main
+jobs: 
+ build:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: Run go mod vendor
+      run: cd ${{github.workspace}}/get_new_key && go mod vendor && cd ${{github.workspace}}/has_new_key && go mod vendor && cd ${{github.workspace}}/sign && go mod vendor cd ${{github.workspace}}/cronjob && go mod vendor
+
+    - name: Install Scaleway Plugin and Deploy
+      uses: serverless/github-action@v3.2
+      with:
+        args: -c "serverless plugin install --name serverless-scaleway-functions && serverless deploy" #env vars need to be set in Github Secrets for now
+        entrypoint: /bin/sh

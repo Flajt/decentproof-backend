@@ -1,4 +1,4 @@
-package decentproof_functions
+package get_new_key
 
 import (
 	"context"

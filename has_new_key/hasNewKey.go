@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	helper "github.com/Flajt/decentproof-backend/decentproof-functions/helper"
+	"github.com/Flajt/decentproof-backend/helper"
 )
 
 func HandleHasNewKey(w http.ResponseWriter, r *http.Request) {
