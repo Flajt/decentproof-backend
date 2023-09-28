@@ -1,7 +1,7 @@
 *.pem
 *.hex
 decentproof-66628-firebase-adminsdk-5po37-26b01e1c7e.json
-*.env
+*.env*
 node_modules/
 .DS_STORE
 *.zip
