@@ -1,0 +1,37 @@
+name: Deploy on PR
+on:
+    push:
+        branches:
+            - main
+jobs: 
+ build:
+  environment:
+    name: prod
+  runs-on: ubuntu-latest
+  steps: 
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: Setup Go 1.20
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.20'
+    
+    - name: Install all dependencies
+      run: cd ${{github.workspace}}/scw_secret_wrapper && go get . && cd ${{github.workspace}}/helper && go get . && cd ${{github.workspace}}/sign && go get . && cd ${{github.workspace}}/cronjob && go get . && cd ${{github.workspace}}/has_new_key && go get . && cd ${{github.workspace}}/get_new_key && go get . && cd ${{github.workspace}}/
+
+    - name: Run go mod vendor
+      run: cd ${{github.workspace}}/get_new_key && go mod vendor && cd ${{github.workspace}}/has_new_key && go mod vendor && cd ${{github.workspace}}/sign && go mod vendor cd ${{github.workspace}}/cronjob && go mod vendor
+
+    - name: Convert secrets to .env.prod file
+      uses: shine1594/secrets-to-env-action@master
+      with:
+        secrets: ${{ toJSON(secrets) }}
+        secrets_env: production
+        file_name_prod: .env.prod
+      
+    - name: Install Scaleway Plugin and Deploy
+      uses: serverless/github-action@v3.2
+      with:
+        args: -c "serverless plugin install --name serverless-scaleway-functions && serverless deploy" #env vars need to be set in Github Secrets for now
+        entrypoint: /bin/sh
