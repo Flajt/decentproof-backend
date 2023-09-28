@@ -16,7 +16,14 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: '1.20'
-    
+        cache-dependency-path: |
+             helper/go.sum
+             scw_secret_wrapper/go.sum
+             sign/go.sum
+             cronjob/go.sum
+             has_new_key/go.sum
+             get_new_key/go.sum
+      
     - name: Install all dependencies
       run: cd ${{github.workspace}}/scw_secret_wrapper && go get . && cd ${{github.workspace}}/helper && go get . && cd ${{github.workspace}}/sign && go get . && cd ${{github.workspace}}/cronjob && go get . && cd ${{github.workspace}}/has_new_key && go get . && cd ${{github.workspace}}/get_new_key && go get .
 
@@ -29,15 +36,14 @@ jobs:
         secrets: ${{ toJSON(secrets) }}
         secrets_env: production
         file_name_prod: .env.prod
-    
-    - name: Log
-      run: ls -al
-
-    - name: Install serverless
-      uses: sozo-design/curl@v1.0.2
+    - name: Setup npm
+      uses: actions/setup-node@v3
       with:
-        args: curl -o- -L https://slss.io/install | bash
-      
+        node-version: '18'
+        
+    - name: Install serverless
+      run: npm install -g serverless
+
     - name: Install serverless plugin
       run: serverless plugin install --name serverless-scaleway-functions
     
