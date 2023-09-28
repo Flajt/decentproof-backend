@@ -1,4 +1,4 @@
-package decentproof_functions
+package sign
 
 import (
 	"crypto/ecdsa"
@@ -8,7 +8,6 @@ import (
 	"encoding/pem"
 	"testing"
 
-	helper "github.com/Flajt/decentproof-backend/decentproof-functions/helper"
 	scw_secret_wrapper "github.com/Flajt/decentproof-backend/scw_secret_wrapper"
 	"github.com/joho/godotenv"
 )
@@ -23,7 +22,7 @@ func TestInitalisation(t *testing.T) {
 			}
 		}()
 		wrapper := scw_secret_wrapper.NewScaleWayWrapperFromEnv()
-		manager := helper.NewSignatureManager(wrapper)
+		manager := NewSignatureManager(wrapper)
 		err := manager.InitSignatureManager()
 		if err == nil {
 			t.Error("Error should not be nil")
@@ -39,7 +38,7 @@ func TestInitalisation(t *testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected error, got %v", err)
 		}
-		manager := helper.NewSignatureManager(wrapper)
+		manager := NewSignatureManager(wrapper)
 		err = manager.InitSignatureManager()
 		if err != nil {
 			t.Error(err)
@@ -59,7 +58,7 @@ func TestInitalisation(t *testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected error, got %v", err)
 		}
-		signatureManager := helper.NewSignatureManager(wrapper)
+		signatureManager := NewSignatureManager(wrapper)
 		err = signatureManager.InitSignatureManager()
 		if err != nil {
 			t.Fatal(err)

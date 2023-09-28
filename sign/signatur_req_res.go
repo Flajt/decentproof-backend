@@ -1,4 +1,4 @@
-package decentproof_functions
+package sign
 
 type SignatureRequestBody struct {
 	Data string `json:"data"`

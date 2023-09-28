@@ -1,0 +1,66 @@
+service: functions
+configValidationMode: off
+singleSource: false
+
+useDotenv: true
+
+provider:
+  name: scaleway
+  runtime: go120
+  stage: prod
+  # region in which the deployment will happen (default: fr-par)
+  scwRegion: nl-ams
+  env:
+    SCW_DEFAULT_REGION: ${env:SCW_DEFAULT_REGION}
+    SCW_DEFAULT_PROJECT_ID: ${env:SCW_DEFAULT_PROJECT_ID}
+    DEBUG: "false"
+
+  secrets:
+    SCW_ACCESS_KEY: ${env:SCW_ACCESS_KEY}
+    SCW_SECRET_KEY: ${env:SCW_SECRET_KEY}
+
+plugins:
+  - serverless-scaleway-functions
+
+package:
+  patterns:
+    - '!.gitignore'
+    - '!.git/**'
+    - '!*.sh'
+    - 'node_modules/**'
+    - '!.env'
+    - '!tsconfig.json'
+    - '!test/**'
+    - '!debug-server'
+    - '!build/debug-server'
+    - '!build/test/**'
+    - '!legacy/**'
+    - '!go.work'
+    - '!go.work.sum'
+    - '!LICENSE'
+    - '!README.md'
+    - '!util'
+    - 'cronjob/**'
+    - '!tests/**'
+
+functions:
+  new-key-required:
+    handler: has_new_key/HandleHasNewKey
+    httpOption: redirected
+
+  sign:
+    handler: sign/HandleSignature
+    httpOption: redirected
+
+  get-new-key:
+    handler: get_new_key/HandleGetNewKey
+    httpOption: redirected
+    secret:
+      GOOGLE_ADMIN_SDK_CREDS: ${env:GOOGLE_ADMIN_SDK_CREDS}
+
+  cron-job:
+    handler: cronjob/Handle
+    events:
+      - schedule:
+          # Every Sunday at 00:00 => https://crontab.guru/#0_0_*_*_0 | minute, hour, day (month) , month, day (week)
+          rate: '0 0 * * 0'

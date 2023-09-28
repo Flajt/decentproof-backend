@@ -1,4 +1,4 @@
-package decentproof_functions
+package sign
 
 import (
 	"crypto/ecdsa"
