@@ -6,8 +6,15 @@ on:
             - dev
 jobs: 
  build:
+  environment:
+    name: dev
   runs-on: ubuntu-latest
   steps:
+    - name: Convert secrets to env vars
+      uses: Firenza/secrets-to-env@v1.2.0
+      with:
+        secrets: ${{ toJSON(secrets) }}
+
     - name: Checkout Code
       uses: actions/checkout@v4
     
@@ -17,7 +24,7 @@ jobs:
         go-version: '1.20'
     
     - name: Install all dependencies
-      run: cd ${{github.workspace}}/scw_secret_wrapper && go mod get . && cd ${{github.workspace}}/helper && go mod get . && cd ${{github.workspace}}/sign && go mod get . && cd ${{github.workspace}}/cronjob && go mod get .
+      run: cd ${{github.workspace}}/scw_secret_wrapper && go get . && cd ${{github.workspace}}/helper && go get . && cd ${{github.workspace}}/sign && go get . && cd ${{github.workspace}}/cronjob && go get .
 
     - name: Sign tests
       run: cd ${{github.workspace}}/sign && go test -v
