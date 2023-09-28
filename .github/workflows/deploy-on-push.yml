@@ -29,6 +29,9 @@ jobs:
         secrets: ${{ toJSON(secrets) }}
         secrets_env: production
         file_name_prod: .env.prod
+    
+    - name: Log
+      run: ls -al
       
     - name: Install Scaleway Plugin and Deploy
       uses: serverless/github-action@v3.2
