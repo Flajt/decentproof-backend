@@ -5,7 +5,7 @@ on:
             - main
             - dev
 jobs: 
- build:
+ test:
   environment:
     name: dev
   runs-on: ubuntu-latest
