@@ -7,15 +7,17 @@ useDotenv: true
 provider:
   name: scaleway
   runtime: go120
-  env:
-    DEBUG: "false"
-  #secret:
-  #  PROJECT_KEY: ${env:PROJECT_KEY}
-  
-  scwToken: ${env:SCW_TOKEN}
-  scwProject: ${env:SCW_PROJECT}
+  stage: prod
   # region in which the deployment will happen (default: fr-par)
   scwRegion: nl-ams
+  env:
+    SCW_DEFAULT_REGION: ${env:SCW_DEFAULT_REGION}
+    SCW_DEFAULT_PROJECT_ID: ${env:SCW_DEFAULT_PROJECT_ID}
+    DEBUG: "false"
+
+  secrets:
+    SCW_ACCESS_KEY: ${env:SCW_ACCESS_KEY}
+    SCW_SECRET_KEY: ${env:SCW_SECRET_KEY}
 
 plugins:
   - serverless-scaleway-functions
@@ -60,7 +62,5 @@ functions:
     handler: cronjob/Handle
     events:
       - schedule:
-        # Every Sunday at 00:00 => https://crontab.guru/#0_0_*_*_0
-        rate: "0 0 * * 0" # minute, hour, day (month) , month, day (week)
-        input:
-          key: "value" # is apperantly required....
+          # Every Sunday at 00:00 => https://crontab.guru/#0_0_*_*_0 | minute, hour, day (month) , month, day (week)
+          rate: '0 0 * * 0'
