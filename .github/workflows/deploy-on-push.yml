@@ -32,9 +32,14 @@ jobs:
     
     - name: Log
       run: ls -al
-      
-    - name: Install Scaleway Plugin and Deploy
-      uses: serverless/github-action@v3.2
+
+    - name: Install serverless
+      uses: sozo-design/curl@v1.0.2
       with:
-        args: -c "serverless plugin install --name serverless-scaleway-functions && serverless deploy" #env vars need to be set in Github Secrets for now
-        entrypoint: /bin/sh
+        args: curl -o- -L https://slss.io/install | bash
+      
+    - name: Install serverless plugin
+      run: serverless plugin install --name serverless-scaleway-functions
+    
+    - name: Deploy functins
+      run: serverless deploy
