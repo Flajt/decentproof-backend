@@ -30,12 +30,11 @@ jobs:
     - name: Run go mod vendor
       run: cd ${{github.workspace}}/get_new_key && go mod vendor && cd ${{github.workspace}}/has_new_key && go mod vendor && cd ${{github.workspace}}/sign && go mod vendor && cd ${{github.workspace}}/cronjob && go mod vendor
 
-    - name: Convert secrets to .env file
-      uses: shine1594/secrets-to-env-action@master
+    - name: Convert secrets to env vars
+      uses: Firenza/secrets-to-env@v1.2.0
       with:
         secrets: ${{ toJSON(secrets) }}
-        secrets_env: production
-        file_name_prod: .env
+
     - name: Setup npm
       uses: actions/setup-node@v3
       with:
