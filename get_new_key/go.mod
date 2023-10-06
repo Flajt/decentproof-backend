@@ -9,6 +9,7 @@ replace github.com/Flajt/decentproof-backend/scw_secret_wrapper => ../scw_secret
 require (
 	firebase.google.com/go/v4 v4.12.1
 	github.com/Flajt/decentproof-backend/helper v0.0.0-00010101000000-000000000000
+	github.com/scaleway/serverless-functions-go v0.1.2
 	google.golang.org/api v0.143.0
 )
 
@@ -30,6 +31,7 @@ require (
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.1 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/scaleway/scaleway-sdk-go v1.0.0-beta.21 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	golang.org/x/crypto v0.13.0 // indirect

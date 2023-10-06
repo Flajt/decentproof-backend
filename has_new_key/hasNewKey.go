@@ -1,4 +1,4 @@
-package decentproof_functions
+package has_new_key
 
 import (
 	"encoding/json"
