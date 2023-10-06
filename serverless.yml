@@ -68,3 +68,8 @@ functions:
     handler: webhook/HandleWebhookCallBack
     secret:
       ORIGINSTAMP_API_KEY: ${env:ORIGINSTAMP_API_KEY}
+
+  verify-hash:
+    handler: webhook/HandleHashVerification
+    secret:
+      ORIGINSTAMP_API_KEY: ${env:ORIGINSTAMP_API_KEY}

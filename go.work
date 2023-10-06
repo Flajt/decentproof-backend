@@ -9,4 +9,5 @@ use (
 	./helper
 	./webhook
 	./originstamp
+	./verify_hash
 )
