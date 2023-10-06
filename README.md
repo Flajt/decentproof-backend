@@ -68,4 +68,4 @@ More support for functions should be added in the future.
 
 ## Why so many packages?
 Yeah... about this: <br>
-Scaleway requires every function to be it's own module, and since some scripts are needed by multiple modules, I've moved these into their own modules, leading to even more modules.
+Scaleway requires every function to be it's own module, and since some scripts are used by multiple modules, I've moved these into their own modules, leading to even more modules. _moduleception_ .In the future, if this project userbase should increase from the .5 it currently has, I convert it from functions into a single api server. But that's in the far future.
