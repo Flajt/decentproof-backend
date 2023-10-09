@@ -44,9 +44,12 @@ SCW_DEFAULT_REGION=<my-scaleway-defualt-region-here>
 GOOGLE_ADMIN_SDK_CREDS=<my-firebase-admin-sdk-key-here>
 ORIGINSTAMP_API_KEY=<my-api-key-here>
 SECRET_KEY=<your-secret-key-for signatures> # use uti/generate_keys.go to generate it
+SCW_EMAIL_SECRET=<your-secret-key-with-email-permissions>
 ```
 The issue is it's nearly needed everywhere, in every function, in every test folder, everywhere...
 So please load it into your terminal enviroment. You can use my script in utils for that: `util/load_env.go`. This should load all env vars into your terminal (tested in VSCode), use the `--path` flag to pass the .env file path.
+
+**NOTE:** Currently the Github Secret for Originstamp Api and E-Mail Secret are the same for DEV as for PROD. The latter should be changed at some point in time. 
 
 ## How to Test
 
