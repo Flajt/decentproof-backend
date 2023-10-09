@@ -15,7 +15,7 @@ provider:
     SCW_DEFAULT_PROJECT_ID: ${env:SCW_DEFAULT_PROJECT_ID}
     DEBUG: "false"
 
-  secrets:
+  secret:
     SCW_ACCESS_KEY: ${env:SCW_ACCESS_KEY}
     SCW_SECRET_KEY: ${env:SCW_SECRET_KEY}
 
