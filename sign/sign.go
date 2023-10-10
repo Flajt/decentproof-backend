@@ -3,8 +3,12 @@ package sign
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 
 	"github.com/Flajt/decentproof-backend/helper"
+	"github.com/Flajt/decentproof-backend/originstamp"
+	models "github.com/Flajt/decentproof-backend/originstamp/models"
+
 	secret_wrapper "github.com/Flajt/decentproof-backend/scw_secret_wrapper"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -43,17 +47,25 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Internal Server Error"))
 		return
 	}
-	signatureResp := SignatureResponseBody{Signature: string(signatureBytes)}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	respBytes, err := json.Marshal(signatureResp)
+	APIKEY := os.Getenv("ORIGINSTAMP_API_KEY")
+	webhookUrl := os.Getenv("WEBHOOK_URL") + "#" + holder.Email
+	client := originstamp.NewOriginStampApiClient(APIKEY)
+	notificationTargets := models.OriginStampNotificationTarget{Target: webhookUrl, NotificationType: 1, Currency: 0}
+	timeStampReqModel := models.OriginStampTimestampRequestBody{Comment: string(signatureBytes), Hash: holder.Data, Notifications: []models.OriginStampNotificationTarget{notificationTargets}}
+	resp, err := client.CreateTimestamp(timeStampReqModel)
 	if err != nil {
-		log.Error().Msg("Internal Server Error, can't marshal response. Details" + err.Error())
+		log.Error().Err(err).Msg("Can't create timestamp. Details: " + err.Error())
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal Server Error"))
 		return
 	}
-	w.Write(respBytes)
+	if resp.ErrorMessage != "" {
+		log.Error().Msg("Can't create timestamp. Details: " + resp.ErrorMessage)
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	log.Info().Msg("Signature request completed")
 }
