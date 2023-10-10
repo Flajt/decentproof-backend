@@ -70,6 +70,6 @@ functions:
       ORIGINSTAMP_API_KEY: ${env:ORIGINSTAMP_API_KEY}
 
   verify-hash:
-    handler: webhook/HandleHashVerification
+    handler: verify_hash/HandleHashVerification
     secret:
       ORIGINSTAMP_API_KEY: ${env:ORIGINSTAMP_API_KEY}
