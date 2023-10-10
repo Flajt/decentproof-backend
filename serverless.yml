@@ -51,6 +51,8 @@ functions:
   sign:
     handler: sign/HandleSignature
     httpOption: redirected
+    env:
+      WEBHOOK_URL: ${env:WEBHOOK_URL}
 
   get-new-key:
     handler: get_new_key/HandleGetNewKey

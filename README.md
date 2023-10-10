@@ -45,7 +45,7 @@ GOOGLE_ADMIN_SDK_CREDS=<my-firebase-admin-sdk-key-here>
 ORIGINSTAMP_API_KEY=<my-api-key-here>
 SECRET_KEY=<your-secret-key-for signatures> # use uti/generate_keys.go to generate it
 SCW_EMAIL_SECRET=<your-secret-key-with-email-permissions>
-WEBHOOK_URL=<the-url-for-the-webhook-callback>
+WEBHOOK_URL=<the-url-for-the-webhook-callback> # if you don't set a domain you will need to deploy it first to get it.
 PRIVATE_KEY=<the-private-key-for-signatures> # this one needs to be in the scaleway secret manager not .env file !
 ```
 The issue is it's nearly needed everywhere, in every function, in every test folder, everywhere...
