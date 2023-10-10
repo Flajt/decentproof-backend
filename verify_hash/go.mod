@@ -1,13 +1,16 @@
-module github.com/Flajt/decentproof-backend/has_new_key
+module github.com/Flajt/decentproof-backend/verify-hash
 
 go 1.20
 
 replace github.com/Flajt/decentproof-backend/helper => ../helper
 
+replace github.com/Flajt/decentproof-backend/originstamp => ../originstamp
+
 replace github.com/Flajt/decentproof-backend/scw_secret_wrapper => ../scw_secret_wrapper
 
 require (
 	github.com/Flajt/decentproof-backend/helper v0.0.0-00010101000000-000000000000
+	github.com/Flajt/decentproof-backend/originstamp v0.0.0-00010101000000-000000000000
 	github.com/scaleway/serverless-functions-go v0.1.2
 )
 

@@ -16,22 +16,35 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: '1.20'
-    
+        cache-dependency-path: |
+             helper/go.sum
+             scw_secret_wrapper/go.sum
+             sign/go.sum
+             cronjob/go.sum
+             has_new_key/go.sum
+             get_new_key/go.sum
+      
     - name: Install all dependencies
-      run: cd ${{github.workspace}}/scw_secret_wrapper && go get . && cd ${{github.workspace}}/helper && go get . && cd ${{github.workspace}}/sign && go get . && cd ${{github.workspace}}/cronjob && go get . && cd ${{github.workspace}}/has_new_key && go get . && cd ${{github.workspace}}/get_new_key && go get .
+      run: cd ${{github.workspace}}/scw_secret_wrapper && go get . && cd ${{github.workspace}}/helper && go get . && cd ${{github.workspace}}/sign && go get . && cd ${{github.workspace}}/cronjob && go get . && cd ${{github.workspace}}/has_new_key && go get . && cd ${{github.workspace}}/get_new_key && go get . && cd ${{github.workspace}}/orignstamp && go get . && cd ${{github.workspace}}/webhook && go get . && cd ${{github.workspace}}/verify_hash && go get .
 
     - name: Run go mod vendor
-      run: cd ${{github.workspace}}/get_new_key && go mod vendor && cd ${{github.workspace}}/has_new_key && go mod vendor && cd ${{github.workspace}}/sign && go mod vendor && cd ${{github.workspace}}/cronjob && go mod vendor
+      run: cd ${{github.workspace}}/get_new_key && go mod vendor && cd ${{github.workspace}}/has_new_key && go mod vendor && cd ${{github.workspace}}/sign && go mod vendor && cd ${{github.workspace}}/cronjob && go mod vendor && cd ${{github.workspace}}/webhook && go mod vendor && cd ${{github.workspace}}/verify_hash && go mod vendor
 
-    - name: Convert secrets to .env.prod file
-      uses: shine1594/secrets-to-env-action@master
+    - name: Convert secrets to env vars
+      uses: Firenza/secrets-to-env@v1.2.0
       with:
         secrets: ${{ toJSON(secrets) }}
-        secrets_env: production
-        file_name_prod: .env.prod
-      
-    - name: Install Scaleway Plugin and Deploy
-      uses: serverless/github-action@v3.2
+
+    - name: Setup npm
+      uses: actions/setup-node@v3
       with:
-        args: -c "serverless plugin install --name serverless-scaleway-functions && serverless deploy" #env vars need to be set in Github Secrets for now
-        entrypoint: /bin/sh
+        node-version: '18'
+
+    - name: Install serverless
+      run: npm install -g serverless
+
+    - name: Install serverless plugin
+      run: serverless plugin install --name serverless-scaleway-functions
+    
+    - name: Deploy functins
+      run: serverless deploy

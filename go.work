@@ -7,4 +7,7 @@ use (
 	./has_new_key
 	./sign
 	./helper
+	./webhook
+	./originstamp
+	./verify_hash
 )
