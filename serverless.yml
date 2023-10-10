@@ -15,7 +15,7 @@ provider:
     SCW_DEFAULT_PROJECT_ID: ${env:SCW_DEFAULT_PROJECT_ID}
     DEBUG: "false"
 
-  secrets:
+  secret:
     SCW_ACCESS_KEY: ${env:SCW_ACCESS_KEY}
     SCW_SECRET_KEY: ${env:SCW_SECRET_KEY}
 
@@ -64,3 +64,12 @@ functions:
       - schedule:
           # Every Sunday at 00:00 => https://crontab.guru/#0_0_*_*_0 | minute, hour, day (month) , month, day (week)
           rate: '0 0 * * 0'
+  webhook:
+    handler: webhook/HandleWebhookCallBack
+    secret:
+      ORIGINSTAMP_API_KEY: ${env:ORIGINSTAMP_API_KEY}
+
+  verify-hash:
+    handler: webhook/HandleHashVerification
+    secret:
+      ORIGINSTAMP_API_KEY: ${env:ORIGINSTAMP_API_KEY}
