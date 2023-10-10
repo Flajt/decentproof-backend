@@ -8,7 +8,6 @@ import (
 
 	"github.com/Flajt/decentproof-backend/helper"
 	"github.com/Flajt/decentproof-backend/originstamp"
-	models "github.com/Flajt/decentproof-backend/verify-hash/model"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -27,7 +26,7 @@ func HandleHashVerification(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Unauthorized"))
 		return
 	}
-	requestModel := models.VerifyRequestBody{}
+	requestModel := VerifyRequestBody{}
 	bytes, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Error().Err(err).Msg("Error reading request body")
