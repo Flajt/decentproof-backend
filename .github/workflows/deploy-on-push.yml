@@ -25,7 +25,7 @@ jobs:
              get_new_key/go.sum
       
     - name: Install all dependencies
-      run: cd ${{github.workspace}}/scw_secret_wrapper && go get . && cd ${{github.workspace}}/helper && go get . && cd ${{github.workspace}}/sign && go get . && cd ${{github.workspace}}/cronjob && go get . && cd ${{github.workspace}}/has_new_key && go get . && cd ${{github.workspace}}/get_new_key && go get . && cd ${{github.workspace}}/orignstamp && go get . && cd ${{github.workspace}}/webhook && go get . && cd ${{github.workspace}}/verify_hash && go get .
+      run: cd ${{github.workspace}}/scw_secret_wrapper && go get . && cd ${{github.workspace}}/helper && go get . && cd ${{github.workspace}}/sign && go get . && cd ${{github.workspace}}/cronjob && go get . && cd ${{github.workspace}}/has_new_key && go get . && cd ${{github.workspace}}/get_new_key && go get . && cd ${{github.workspace}}/originstamp && go get . && cd ${{github.workspace}}/webhook && go get . && cd ${{github.workspace}}/verify_hash && go get .
 
     - name: Run go mod vendor
       run: cd ${{github.workspace}}/get_new_key && go mod vendor && cd ${{github.workspace}}/has_new_key && go mod vendor && cd ${{github.workspace}}/sign && go mod vendor && cd ${{github.workspace}}/cronjob && go mod vendor && cd ${{github.workspace}}/webhook && go mod vendor && cd ${{github.workspace}}/verify_hash && go mod vendor
