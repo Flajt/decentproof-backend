@@ -46,7 +46,7 @@ ORIGINSTAMP_API_KEY=<my-api-key-here>
 SECRET_KEY=<your-secret-key-for signatures> # use uti/generate_keys.go to generate it
 SCW_EMAIL_SECRET=<your-secret-key-with-email-permissions>
 WEBHOOK_URL=<the-url-for-the-webhook-callback>
-PRIVATE_KEY=<the-private-key-for-signatures>
+PRIVATE_KEY=<the-private-key-for-signatures> # this one needs to be in the scaleway secret manager not .env file !
 ```
 The issue is it's nearly needed everywhere, in every function, in every test folder, everywhere...
 So please load it into your terminal enviroment. You can use my script in utils for that: `util/load_env.go`. This should load all env vars into your terminal (tested in VSCode), use the `--path` flag to pass the .env file path.
