@@ -25,7 +25,7 @@ func NewOriginStampApiClient(apiKey string) *OriginStampApiClient {
 }
 
 // Create Timestamp
-func (client *OriginStampApiClient) CreateTimestamp(body models.OriginStampProofRequestBody) (models.OriginStampCreateTimestampResponse, error) {
+func (client *OriginStampApiClient) CreateTimestamp(body models.OriginStampTimestampRequestBody) (models.OriginStampCreateTimestampResponse, error) {
 	encodedBody, err := json.Marshal(body)
 	if err != nil {
 		return models.OriginStampCreateTimestampResponse{}, err
