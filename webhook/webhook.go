@@ -17,6 +17,14 @@ func HandleWebhookCallBack(w http.ResponseWriter, r *http.Request) {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	log.Info().Msg("Webhook callback request")
+	encryptedMailAddress := r.URL.Fragment
+	if encryptedMailAddress == "" || encryptedMailAddress == " " {
+		log.Info().Msg("No email address provided")
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Done"))
+		return
+	}
 
 	orignStampApi := originstamp.NewOriginStampApiClient(os.Getenv("ORIGINSTAMP_API_KEY"))
 	var requestBody models.OriginStampWebhookRequestBody
@@ -84,7 +92,7 @@ func HandleWebhookCallBack(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	encryptedMailAddress := r.URL.Fragment
+
 	email := mail.NewMSG()
 
 	attachment := mail.File{Data: fileBytes, Name: data.Data.FileName}
