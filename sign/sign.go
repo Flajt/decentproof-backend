@@ -1,6 +1,7 @@
 package sign
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -51,7 +52,7 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 	webhookUrl := os.Getenv("WEBHOOK_URL") + "#" + holder.Email
 	client := originstamp.NewOriginStampApiClient(APIKEY)
 	notificationTargets := models.OriginStampNotificationTarget{Target: webhookUrl, NotificationType: 1, Currency: 0}
-	timeStampReqModel := models.OriginStampTimestampRequestBody{Comment: string(signatureBytes), Hash: holder.Data, Notifications: []models.OriginStampNotificationTarget{notificationTargets}}
+	timeStampReqModel := models.OriginStampTimestampRequestBody{Comment: hex.EncodeToString(signatureBytes), Hash: holder.Data, Notifications: []models.OriginStampNotificationTarget{notificationTargets}}
 	resp, err := client.CreateTimestamp(timeStampReqModel)
 	if err != nil {
 		log.Error().Err(err).Msg("Can't create timestamp. Details: " + err.Error())
