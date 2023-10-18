@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"time"
 
 	models "github.com/Flajt/decentproof-backend/originstamp/models"
 )
@@ -12,26 +13,34 @@ import (
 // Contains minimal version of the Originstamp API, not all api calls are included
 // For a complete list of api calls see https://api.originstamp.com/swagger/swagger-ui.html
 type OriginStampApiClient struct {
-	ApiKey  string
-	BaseUrl string
+	ApiKey     string
+	BaseUrl    string
+	httpClient http.Client
 }
 
 // Create Timestamping Client
 func NewOriginStampApiClient(apiKey string) *OriginStampApiClient {
 	return &OriginStampApiClient{
-		ApiKey:  apiKey,
-		BaseUrl: "https://api.originstamp.com/",
+		ApiKey:     apiKey,
+		BaseUrl:    "https://api.originstamp.com/",
+		httpClient: http.Client{Timeout: 5 * time.Second},
 	}
 }
 
 // Create Timestamp
-func (client *OriginStampApiClient) CreateTimestamp(body models.OriginStampProofRequestBody) (models.OriginStampCreateTimestampResponse, error) {
+func (client *OriginStampApiClient) CreateTimestamp(body models.OriginStampTimestampRequestBody) (models.OriginStampCreateTimestampResponse, error) {
 	encodedBody, err := json.Marshal(body)
 	if err != nil {
 		return models.OriginStampCreateTimestampResponse{}, err
 	}
 	reader := bytes.NewReader(encodedBody)
-	resp, err := http.Post(client.BaseUrl+"v4/timestamp/create", "application/json", reader)
+	req, err := http.NewRequest(http.MethodPost, client.BaseUrl+"v4/timestamp/create", reader)
+	if err != nil {
+		return models.OriginStampCreateTimestampResponse{}, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", client.ApiKey)
+	resp, err := client.httpClient.Do(req)
 	if err != nil {
 		return models.OriginStampCreateTimestampResponse{}, err
 	}
@@ -54,7 +63,13 @@ func (client *OriginStampApiClient) GetProof(body models.OriginStampProofRequest
 	}
 	reader := bytes.NewReader(encodedBody)
 
-	resp, err := http.Post(client.BaseUrl+"v3/timestamp/proof/url", "application/json", reader)
+	req, err := http.NewRequest(http.MethodPost, client.BaseUrl+"v3/timestamp/proof/url", reader)
+	if err != nil {
+		return models.OriginStampProofResponse{}, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", client.ApiKey)
+	resp, err := client.httpClient.Do(req)
 	if err != nil {
 		return models.OriginStampProofResponse{}, err
 	}
@@ -72,7 +87,12 @@ func (client *OriginStampApiClient) GetProof(body models.OriginStampProofRequest
 // Get Timestamp status by hash
 
 func (client *OriginStampApiClient) GetTimestampStatus(hash string) (models.OriginStampTimeStampStatusResponse, error) {
-	resp, err := http.Get(client.BaseUrl + "v4/timestamp/" + hash)
+	req, err := http.NewRequest(http.MethodGet, client.BaseUrl+"v4/timestamp/"+hash, nil)
+	if err != nil {
+		return models.OriginStampTimeStampStatusResponse{}, err
+	}
+	req.Header.Set("Authorization", client.ApiKey)
+	resp, err := client.httpClient.Do(req)
 	if err != nil {
 		return models.OriginStampTimeStampStatusResponse{}, err
 	}
