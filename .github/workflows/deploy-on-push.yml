@@ -3,10 +3,29 @@ on:
     push:
         branches:
             - main
-jobs: 
+            - dev
+jobs:
+ get_branch:
+  runs-on: ubuntu-latest
+  steps: 
+    - name: Branch check #Credits: https://www.codewrecks.com/post/github/choose-environment-from-branch/
+      id: branch_check
+      run: |
+        echo "Running on branch ${{ github.ref }}"
+        if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          echo "::set-output name=env_name::prod"
+        elif [ "${{ github.ref }}" = "refs/heads/dev" ]; then
+          echo "::set-output name=env_name::dev"
+        fi
+    - name: Choosen Env
+      run: echo ${{ steps.branch_check.outputs.env_name }}
+  outputs:
+    env_name: ${{ steps.branch_check.outputs.env_name }}
+ 
  build:
+  needs: [get_branch]
   environment:
-    name: prod
+    name: ${{ needs.get_branch.outputs.env_name }}
   runs-on: ubuntu-latest
   steps: 
     - name: Checkout Code
