@@ -49,10 +49,11 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	APIKEY := os.Getenv("ORIGINSTAMP_API_KEY")
-	webhookUrl := os.Getenv("WEBHOOK_URL") + "#" + holder.Email
+	webhookUrl := os.Getenv("WEBHOOK_URL") + "?mail=" + holder.Email
 	client := originstamp.NewOriginStampApiClient(APIKEY)
-	notificationTargets := models.OriginStampNotificationTarget{Target: webhookUrl, NotificationType: 1, Currency: 0}
-	timeStampReqModel := models.OriginStampTimestampRequestBody{Comment: hex.EncodeToString(signatureBytes), Hash: holder.Data, Notifications: []models.OriginStampNotificationTarget{notificationTargets}}
+	bitcoinNotificationTarget := models.OriginStampNotificationTarget{Target: webhookUrl, NotificationType: 1, Currency: 0}
+	etheriumNotificationTarget := models.OriginStampNotificationTarget{Target: webhookUrl, NotificationType: 1, Currency: 1}
+	timeStampReqModel := models.OriginStampTimestampRequestBody{Comment: hex.EncodeToString(signatureBytes), Hash: holder.Data, Notifications: []models.OriginStampNotificationTarget{bitcoinNotificationTarget, etheriumNotificationTarget}}
 	resp, err := client.CreateTimestamp(timeStampReqModel)
 	if err != nil {
 		log.Error().Err(err).Msg("Can't create timestamp. Details: " + err.Error())
