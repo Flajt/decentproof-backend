@@ -55,7 +55,7 @@ func TestWebhookHandler(t *testing.T) {
 			t.Errorf("Error marshalling request body: %v", err)
 		}
 
-		req, err := http.NewRequest("POST", "#"+validEmail, bytes.NewBuffer(reqBytes))
+		req, err := http.NewRequest("POST", "?mail="+validEmail, bytes.NewBuffer(reqBytes))
 		if err != nil {
 			t.Errorf("Error creating request: %v", err)
 		}
@@ -88,13 +88,13 @@ func TestWebhookHandler(t *testing.T) {
 			t.Errorf("Error marshalling request body: %v", err)
 		}
 
-		req, err := http.NewRequest("POST", "#"+emptyMail, bytes.NewBuffer(reqBytes))
+		req, err := http.NewRequest("POST", "/?mail="+emptyMail, bytes.NewBuffer(reqBytes))
 		if err != nil {
 			t.Errorf("Error creating request: %v", err)
 		}
 		writer := &MockResponseWriter{}
 		HandleWebhookCallBack(writer, req)
-		if writer.StatusCode != http.StatusOK {
+		if writer.StatusCode != http.StatusBadRequest {
 			t.Errorf("Expected status code %v, got %v", http.StatusOK, writer.StatusCode)
 		}
 

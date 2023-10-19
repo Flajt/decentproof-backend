@@ -17,11 +17,12 @@ func HandleWebhookCallBack(w http.ResponseWriter, r *http.Request) {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	log.Info().Msg("Webhook callback request")
-	encryptedMailAddress := r.URL.Fragment
+	encryptedMailAddress := r.URL.Query().Get("mail")
+	log.Info().Msg("Email address: " + encryptedMailAddress)
 	if encryptedMailAddress == "" || encryptedMailAddress == " " {
 		log.Info().Msg("No email address provided")
 		w.Header().Set("Content-Type", "text/plain")
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Done"))
 		return
 	}
@@ -37,13 +38,13 @@ func HandleWebhookCallBack(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting proof from OriginStamp API")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		w.Write([]byte("Something went wrong"))
 		return
 	}
 	if data.ErrorMessage != "" {
 		log.Error().Msg("Error returned while getting proof from OriginStamp API. Details: " + data.ErrorMessage)
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(data.ErrorMessage))
+		w.Write([]byte("Something went wrong"))
 		return
 	}
 	downloadUrl := data.Data.DownloadURL
@@ -58,14 +59,14 @@ func HandleWebhookCallBack(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error().Err(err).Msg("Error downloading file from OriginStamp API")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		w.Write([]byte("Something went wrong"))
 		return
 	}
 	fileBytes, err := io.ReadAll(fileRequest.Body)
 	if err != nil {
 		log.Error().Err(err).Msg("Error reading file from OriginStamp API")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		w.Write([]byte("Something went wrong"))
 		return
 	}
 	defer fileRequest.Body.Close()
@@ -89,7 +90,7 @@ func HandleWebhookCallBack(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error().Err(err).Msg("Error connecting to SMTP server")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		w.Write([]byte("Something went wrong"))
 		return
 	}
 
@@ -101,7 +102,7 @@ func HandleWebhookCallBack(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error().Err(err).Msg("Error sending email")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		w.Write([]byte("Something went wrong"))
 		return
 	}
 	log.Info().Msg("Successfully sent email")
