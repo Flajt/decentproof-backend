@@ -32,7 +32,14 @@ func HandleGetNewKey(w http.ResponseWriter, r *http.Request) {
 		if success {
 			log.Info().Msg("Valid App Check token,adding api key to response")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(apiKeys[1]))
+			if len(apiKeys) == 1 {
+				w.Write([]byte(apiKeys[0]))
+			} else if len(apiKeys) == 2 {
+				w.Write([]byte(apiKeys[1]))
+			} else {
+				log.Debug().Msgf("%d api keys found", len(apiKeys))
+				panic("Invalid number of api keys found!")
+			}
 			return
 		} else {
 			log.Error().Msg("Invalid App Check token")
