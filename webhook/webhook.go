@@ -18,7 +18,6 @@ func HandleWebhookCallBack(w http.ResponseWriter, r *http.Request) {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	log.Info().Msg("Webhook callback request")
 	encryptedMailAddress := r.URL.Query().Get("mail")
-	log.Info().Msg("Email address: " + encryptedMailAddress)
 	if encryptedMailAddress == "" || encryptedMailAddress == " " {
 		log.Info().Msg("No email address provided")
 		w.Header().Set("Content-Type", "text/plain")
