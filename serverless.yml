@@ -53,6 +53,8 @@ functions:
     httpOption: redirected
     env:
       WEBHOOK_URL: ${env:WEBHOOK_URL}
+    secret:
+      ORIGINSTAMP_API_KEY: ${env:ORIGINSTAMP_API_KEY}
 
   get-new-key:
     handler: get_new_key/HandleGetNewKey
