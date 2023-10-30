@@ -51,24 +51,25 @@ func TestSecretCreation(t *testing.T) {
 
 func TestListSecrets(t *testing.T) {
 	godotenv.Load(".env")
-	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
+	t.Run("check if secrets exists", func(t *testing.T) {
+		var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
 
-	want := 1
-	wrapper := NewScaleWayWrapper(setupData)
-	input := bytes.NewBufferString("test")
-	if _, err := wrapper.SetSecret("test", input.Bytes()); err != nil {
-		t.Error(err)
-	}
-	if secrets, err := wrapper.ListSecrets(); err != nil {
-		t.Error(err)
-	} else {
-		if secrets.TotalCount != uint32(want) {
-			t.Errorf("Got %d secrets, wanted %d", secrets.TotalCount, want)
+		want := 1
+		wrapper := NewScaleWayWrapper(setupData)
+		input := bytes.NewBufferString("test")
+		if _, err := wrapper.SetSecret("test", input.Bytes()); err != nil {
+			t.Error(err)
 		}
+		if secrets, err := wrapper.ListSecrets(); err != nil {
+			t.Error(err)
+		} else {
+			if secrets.TotalCount != uint32(want) {
+				t.Errorf("Got %d secrets, wanted %d", secrets.TotalCount, want)
+			}
 
-	}
-	t.Cleanup(func() { CleanUp(t) })
-
+		}
+		t.Cleanup(func() { CleanUp(t) })
+	})
 }
 
 // Tests if the secret creation fails if the secret name is too short
@@ -215,6 +216,52 @@ func TestValues(t *testing.T) {
 		bloc, _ := pem.Decode(data)
 		if reflect.DeepEqual(bloc.Bytes, bytes) == false {
 			t.Errorf("Got %s, wanted %s", string(data), bytes)
+		}
+	})
+	t.Cleanup(func() { CleanUp(t) })
+}
+
+func TestSecretAccessAfterDeletion(t *testing.T) {
+	t.Run("test with string", func(*testing.T) {
+		client := NewScaleWayWrapperFromEnv()
+		secret, err := client.SetSecret("testKey", []byte("testValue"))
+		if err != nil {
+			t.Error(err)
+		}
+		err = client.CreateNewSecretVersion(*secret, []byte("testValue2"))
+		if err != nil {
+			t.Error(err)
+		}
+		secrets, err := client.ListSecrets("testKey")
+		if err != nil {
+			t.Error(err)
+		}
+		secretVersionHolder, err := client.ListSecretVersions(secrets.Secrets[0].ID)
+		if (err) != nil {
+			t.Error(err)
+		}
+		versions := secretVersionHolder.SecretVersions
+		err = client.DeleteSecretVersion(secrets.Secrets[0].ID, strconv.FormatUint(uint64(versions[1].Revision), 10))
+		if err != nil {
+			t.Error(err)
+		}
+		secretVersions, err := client.ListSecretVersions(secrets.Secrets[0].ID)
+		if err != nil {
+			t.Log(err)
+		}
+		var apiKeys []string
+		for _, secret := range secretVersions.SecretVersions {
+			if secret.Status != "destroyed" {
+				data, err := client.GetSecretData("testKey", strconv.FormatUint(uint64(secret.Revision), 10))
+				apiKeys = append(apiKeys, string(data))
+				if err != nil {
+					/// Should also be impossible to not get the data if the rest is true
+					panic(err)
+				}
+			}
+		}
+		if len(apiKeys) != 1 {
+			t.Errorf("Got %d api keys, wanted %d", len(apiKeys), 1)
 		}
 	})
 	t.Cleanup(func() { CleanUp(t) })
