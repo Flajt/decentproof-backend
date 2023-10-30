@@ -10,6 +10,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// TODO: See if that can be written better
 func HandleHasNewKey(w http.ResponseWriter, r *http.Request) {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
@@ -19,8 +20,8 @@ func HandleHasNewKey(w http.ResponseWriter, r *http.Request) {
 	isValid := helper.VerifyApiKey(r, keys)
 	if isValid {
 		log.Info().Msg("Valid API key, checking if new key is available")
-		if keys[0] == requestKey {
-			log.Trace().Msg("key[0] == requestKey")
+		if keys[0] == requestKey && len(keys) > 1 { // We have more than one key available, so this one should be the oldest
+			log.Trace().Msg("key[0] == requestKey && len > 1")
 			response := map[string]bool{"hasNewKey": true}
 			responseBytes, err := json.Marshal(response)
 			if err != nil {
@@ -35,8 +36,25 @@ func HandleHasNewKey(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			w.Write(responseBytes)
 			return
+		} else if keys[0] == requestKey && len(keys) == 1 { // We only have one key available and it's the one we got
+			log.Trace().Msg("key[0] == requestKey && len == 1")
+			response := map[string]bool{"hasNewKey": false}
+			responseBytes, err := json.Marshal(response)
+			if err != nil {
+				log.Error().Msg("Error marshalling response. Details: " + err.Error())
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte("Internal Server Error"))
+				return
+			}
+			log.Info().Msg("Successfully handled request")
+			log.Trace().Msg("hasNewKey:false")
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write(responseBytes)
+			return
+
 		} else if len(keys) > 1 && keys[1] == requestKey { // in case we don't have two keys to prevent crashes
-			log.Trace().Msg("key[1] == requestKey")
+			log.Trace().Msg("key[1] == requestKey && len > 1")
 			response := map[string]bool{"hasNewKey": false}
 			responseBytes, err := json.Marshal(response)
 			if err != nil {
@@ -50,7 +68,7 @@ func HandleHasNewKey(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			w.Write(responseBytes)
 			return
-		} else {
+		} else { // everything else
 			log.Trace().Msg("key[0] != requestKey && key[1] != requestKey")
 			response := map[string]bool{"hasNewKey": true}
 			responseBytes, err := json.Marshal(response)
