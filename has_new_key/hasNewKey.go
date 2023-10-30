@@ -35,7 +35,7 @@ func HandleHasNewKey(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			w.Write(responseBytes)
 			return
-		} else if keys[1] == requestKey {
+		} else if len(keys) > 1 && keys[1] == requestKey { // in case we don't have two keys to prevent crashes
 			log.Trace().Msg("key[1] == requestKey")
 			response := map[string]bool{"hasNewKey": false}
 			responseBytes, err := json.Marshal(response)
