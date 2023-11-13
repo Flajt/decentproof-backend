@@ -10,4 +10,5 @@ use (
 	./webhook
 	./originstamp
 	./verify_hash
+	./encryption
 )
