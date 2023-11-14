@@ -125,46 +125,45 @@ func cleanUp(scwWrapper *scw_secret_manager.ScalewayWrapper, t *testing.T) {
 func TestMultipleKeyHandleing(t *testing.T) {
 	scwWrapper := scw_secret_manager.NewScaleWayWrapperFromEnv()
 
-	firstKey := helper.GenerateApiKey(32)
-	secondKey := helper.GenerateApiKey(32)
+	t.Run("should use second key if the new one doesn't work", func(t *testing.T) {
 
-	firstKeyBytes, err := base64.StdEncoding.DecodeString(firstKey)
-	if err != nil {
-		t.Error(err)
-	}
-	secondKeyBytes, err := base64.StdEncoding.DecodeString(secondKey)
-	if err != nil {
-		t.Error(err)
-	}
+		firstKey := helper.GenerateApiKey(32)
+		secondKey := helper.GenerateApiKey(32)
 
-	_, err = scwWrapper.SetSecret("ENCRYPTION_KEY", firstKeyBytes)
-	if err != nil {
-		t.Error(err)
-	}
-	service := NewEncryptionService(*scwWrapper)
-	encryptedData, err := service.EncryptData([]byte("test"))
-	if err != nil {
-		t.Error(err)
-	}
-	cleanUp(scwWrapper, t)
+		firstKeyBytes, err := base64.StdEncoding.DecodeString(firstKey)
+		if err != nil {
+			t.Error(err)
+		}
+		secondKeyBytes, err := base64.StdEncoding.DecodeString(secondKey)
+		if err != nil {
+			t.Error(err)
+		}
 
-	secret, err := scwWrapper.SetSecret("ENCRYPTION_KEY", secondKeyBytes)
-	if err != nil {
-		t.Error(err)
-	}
-	time.Sleep(10 * time.Millisecond)
-	err = scwWrapper.CreateNewSecretVersion(*secret, firstKeyBytes)
-	if err != nil {
-		t.Error(err)
-	}
-	decryptedData, err := service.DecryptData(encryptedData.Data, encryptedData.Nonce)
-	if err != nil {
-		t.Error(err)
-	}
-	if string(decryptedData) != "test" {
-		t.Error("Decrypted data does not match original data")
-	}
+		service := NewEncryptionServiceFromKey(firstKeyBytes)
+		encryptedData, err := service.EncryptData([]byte("test"))
+		if err != nil {
+			t.Error(err)
+		}
+		service = NewEncryptionService(*scwWrapper)
 
+		secret, err := scwWrapper.SetSecret("ENCRYPTION_KEY", firstKeyBytes)
+		if err != nil {
+			t.Error(err)
+		}
+		time.Sleep(10 * time.Millisecond)
+		err = scwWrapper.CreateNewSecretVersion(*secret, secondKeyBytes)
+		if err != nil {
+			t.Error(err)
+		}
+		decryptedData, err := service.DecryptData(encryptedData.Data, encryptedData.Nonce)
+		if err != nil {
+			t.Error(err)
+		}
+		if string(decryptedData) != "test" {
+			t.Error("Decrypted data does not match original data")
+		}
+
+	})
 	t.Cleanup(func() {
 		cleanUp(scwWrapper, t)
 	})

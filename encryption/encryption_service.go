@@ -51,7 +51,7 @@ func (e *EncryptionService) EncryptData(data []byte) (EncryptionOutPut, error) {
 			return EncryptionOutPut{}, err
 		}
 		sort.Slice(secretVersions.SecretVersions, func(i, j int) bool {
-			return secretVersions.SecretVersions[i].CreatedAt.Before(*secretVersions.SecretVersions[j].CreatedAt)
+			return secretVersions.SecretVersions[i].CreatedAt.After(*secretVersions.SecretVersions[j].CreatedAt)
 		})
 		secretVersionData := secretVersions.SecretVersions
 		key, err := e.scwWrapper.GetSecretData(secret.Name, strconv.FormatUint(uint64(secretVersionData[0].Revision), 10))
@@ -105,7 +105,7 @@ func (e *EncryptionService) DecryptData(data []byte, nonce []byte) ([]byte, erro
 			return nil, err
 		}
 		sort.Slice(secretVersions.SecretVersions, func(i, j int) bool {
-			return secretVersions.SecretVersions[i].CreatedAt.Before(*secretVersions.SecretVersions[j].CreatedAt)
+			return secretVersions.SecretVersions[i].CreatedAt.After(*secretVersions.SecretVersions[j].CreatedAt)
 		})
 		secretVersionData := secretVersions.SecretVersions
 		key, err := e.scwWrapper.GetSecretData(secret.Name, strconv.FormatUint(uint64(secretVersionData[0].Revision), 10))
