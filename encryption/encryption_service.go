@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"io"
+	"sort"
 	"strconv"
 
 	scw_secret_manager "github.com/Flajt/decentproof-backend/scw_secret_wrapper"
@@ -18,22 +19,20 @@ type EncryptionOutPut struct {
 
 type IEncryptionService interface {
 	EncryptData(data []byte) (EncryptionOutPut, error)
-	DecryptData(data []byte, nonce []byte) (EncryptionOutPut, error)
-	NewEncryptionService(scwWrapper scw_secret_manager.ScalewayWrapper) IEncryptionService
-	NewEncryptionServiceFromEnv() IEncryptionService
+	DecryptData(data []byte, nonce []byte) ([]byte, error)
 }
 
 type EncryptionService struct {
 	scwWrapper *scw_secret_manager.ScalewayWrapper
 	// Key for offline testing only, this can be used to replace the scwWrapper, 32bits are required!
-	key *string
+	key *[]byte
 }
 
 // EncryptData encrypts the data using AES-GCM, the nonce is generated using the crypto/rand package
 func (e *EncryptionService) EncryptData(data []byte) (EncryptionOutPut, error) {
 	var block cipher.Block // To reduce code duplication, the if and else statements will asign their aes cipher to this variable
 	if e.key != nil {
-		blockCipher, err := aes.NewCipher([]byte(*e.key))
+		blockCipher, err := aes.NewCipher(*e.key)
 		if err != nil {
 			return EncryptionOutPut{}, err
 		}
@@ -51,18 +50,11 @@ func (e *EncryptionService) EncryptData(data []byte) (EncryptionOutPut, error) {
 		if err != nil {
 			return EncryptionOutPut{}, err
 		}
-		var secretVersionIndex = -2
-		for index, secretVersion := range secretVersions.SecretVersions {
-			if secretVersion.IsLatest {
-				secretVersionIndex = index
-				break
-			}
-		}
-		if secretVersionIndex == -2 {
-			panic("Secret not found")
-		}
-		secretVersionData := secretVersions.SecretVersions[secretVersionIndex]
-		key, err := e.scwWrapper.GetSecretData(secret.Name, strconv.FormatUint(uint64(secretVersionData.Revision), 10))
+		sort.Slice(secretVersions.SecretVersions, func(i, j int) bool {
+			return secretVersions.SecretVersions[i].CreatedAt.Before(*secretVersions.SecretVersions[j].CreatedAt)
+		})
+		secretVersionData := secretVersions.SecretVersions
+		key, err := e.scwWrapper.GetSecretData(secret.Name, strconv.FormatUint(uint64(secretVersionData[0].Revision), 10))
 		if err != nil {
 			return EncryptionOutPut{}, err
 		}
@@ -91,8 +83,10 @@ func (e *EncryptionService) EncryptData(data []byte) (EncryptionOutPut, error) {
 // DecryptData decrypts the data using AES-GCM, the nonce needs to be provided
 func (e *EncryptionService) DecryptData(data []byte, nonce []byte) ([]byte, error) {
 	var block cipher.Block // Same as the function above
+	var secretVersionHolder scw_secret_manager.SecretVersionHolder
+	var sharedSecrets scw_secret_manager.SecretHolder
 	if e.key != nil {
-		cipher, err := aes.NewCipher([]byte(*e.key))
+		cipher, err := aes.NewCipher(*e.key)
 		if err != nil {
 			return nil, err
 		}
@@ -110,18 +104,11 @@ func (e *EncryptionService) DecryptData(data []byte, nonce []byte) ([]byte, erro
 		if err != nil {
 			return nil, err
 		}
-		var secretVersionIndex = -2
-		for index, secretVersion := range secretVersions.SecretVersions {
-			if secretVersion.IsLatest {
-				secretVersionIndex = index
-				break
-			}
-		}
-		if secretVersionIndex == -2 {
-			panic("Secret not found")
-		}
-		secretVersionData := secretVersions.SecretVersions[secretVersionIndex]
-		key, err := e.scwWrapper.GetSecretData(secret.Name, strconv.FormatUint(uint64(secretVersionData.Revision), 10))
+		sort.Slice(secretVersions.SecretVersions, func(i, j int) bool {
+			return secretVersions.SecretVersions[i].CreatedAt.Before(*secretVersions.SecretVersions[j].CreatedAt)
+		})
+		secretVersionData := secretVersions.SecretVersions
+		key, err := e.scwWrapper.GetSecretData(secret.Name, strconv.FormatUint(uint64(secretVersionData[0].Revision), 10))
 		if err != nil {
 			return nil, err
 		}
@@ -130,24 +117,50 @@ func (e *EncryptionService) DecryptData(data []byte, nonce []byte) ([]byte, erro
 			return nil, err
 		}
 		block = cipher
+		secretVersionHolder = secretVersions
+		sharedSecrets = secrets
 	}
 
 	aesgcm, err := cipher.NewGCM(block)
 	if err != nil {
 		panic(err.Error())
 	}
-
 	outPut, err := aesgcm.Open(nil, nonce, data, nil)
+
 	if err != nil {
-		panic(err.Error())
+		if err.Error() == "cipher: message authentication failed" && secretVersionHolder.TotalCount == 2 {
+			secrertVersion := secretVersionHolder.SecretVersions[1]
+			secret := sharedSecrets.Secrets[0]
+			key2, err := e.scwWrapper.GetSecretData(secret.Name, strconv.FormatUint(uint64(secrertVersion.Revision), 10))
+			if err != nil {
+				return nil, err
+			}
+			block2, err := aes.NewCipher(key2)
+			if err != nil {
+				return nil, err
+			}
+			aesgcm2, err := cipher.NewGCM(block2)
+			if err != nil {
+				return nil, err
+			}
+			outPut, err := aesgcm2.Open(nil, nonce, data, nil)
+			if err != nil {
+				return nil, err
+			}
+			return outPut, nil
+		} else {
+			panic(err.Error())
+		}
 	}
 	return outPut, nil
 }
 
-func (e *EncryptionService) NewEncryptionService(scwWrapper scw_secret_manager.ScalewayWrapper) EncryptionService {
-	return EncryptionService{scwWrapper: &scwWrapper, key: nil}
+func NewEncryptionService(scwWrapper scw_secret_manager.ScalewayWrapper) IEncryptionService {
+	return &EncryptionService{scwWrapper: &scwWrapper, key: nil}
 }
-
-func (e *EncryptionService) NewEncryptionServiceFromEnv(key string) EncryptionService {
-	return EncryptionService{scwWrapper: nil, key: &key}
+func NewEncryptionServiceFromKey(keyAsBytes []byte) IEncryptionService {
+	if len(keyAsBytes) != 32 {
+		panic("Key is not 32 bytes long")
+	}
+	return &EncryptionService{scwWrapper: nil, key: &keyAsBytes}
 }

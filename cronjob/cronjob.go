@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
+	"github.com/Flajt/decentproof-backend/helper"
 	scw_secret_manager "github.com/Flajt/decentproof-backend/scw_secret_wrapper"
 )
 
@@ -28,7 +29,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	}
 	if secretHolder.TotalCount == 0 {
 		log.Debug().Msg("No secrets found, creating new one")
-		apiKey := GenerateApiKey()
+		apiKey := helper.GenerateApiKey(32)
 		keyAsBytes := []byte(apiKey)
 		if _, err := wrapper.SetSecret("apiKey", keyAsBytes); err != nil {
 			log.Fatal().Msg(err.Error())
@@ -67,7 +68,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 						returnError(w, err)
 						panic(err)
 					}
-					apiKey := GenerateApiKey()
+					apiKey := helper.GenerateApiKey(32)
 					apiKeyBytes := []byte(apiKey)
 					//TODO: Can this duplication be removed?
 					if firstSecretCreationDateLater {
@@ -86,7 +87,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 				}
 			} else {
 				log.Debug().Msg("One secret found, creating new one")
-				apiKey := GenerateApiKey()
+				apiKey := helper.GenerateApiKey(32)
 				apiKeyBytes := []byte(apiKey)
 				if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[0], apiKeyBytes); err != nil {
 					log.Fatal().Msg(err.Error())
