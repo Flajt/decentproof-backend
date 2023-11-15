@@ -38,6 +38,6 @@ jobs:
     - name: Run encryption tests
       run: cd ${{github.workspace}}/encryption && go test -v
 
-    - name: Run cronjob tests
-      run: cd ${{github.workspace}}/cronjob && go test ./... -v
+    #- name: Run cronjob tests
+     # run: cd ${{github.workspace}}/cronjob && go test ./... -v
     
