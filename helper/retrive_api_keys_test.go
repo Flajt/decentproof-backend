@@ -41,7 +41,7 @@ func TestRetrievApiKeys(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		err = scw_wrapper.CreateNewSecretVersion(*secret, []byte("test2"))
+		err = scw_wrapper.CreateNewSecretVersion(secret, []byte("test2"))
 		if err != nil {
 			t.Error(err)
 		}

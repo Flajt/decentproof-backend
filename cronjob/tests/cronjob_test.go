@@ -66,7 +66,7 @@ func TestCronjob(t *testing.T) {
 			t.Error(err)
 		}
 
-		if err := wrapper.CreateNewSecretVersion(*secret, []byte("test2")); err != nil {
+		if err := wrapper.CreateNewSecretVersion(secret, []byte("test2")); err != nil {
 			t.Error(err)
 		}
 		decentproof_cronjob.Handle(&MockResponseWriter{}, nil)

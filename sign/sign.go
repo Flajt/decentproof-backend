@@ -52,7 +52,7 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 	APIKEY := os.Getenv("ORIGINSTAMP_API_KEY")
 	webhookUrl := os.Getenv("WEBHOOK_URL")
 	if holder.Email != "" {
-		encryptionService := encryption_service.NewEncryptionService(*scw_wrapper)
+		encryptionService := encryption_service.NewEncryptionService(scw_wrapper)
 		encryptionData, err := encryptionService.EncryptData([]byte(holder.Email))
 		if err != nil {
 			log.Error().Err(err).Msg("Can't encrypt email")

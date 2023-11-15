@@ -75,7 +75,7 @@ func HandleWebhookCallBack(w http.ResponseWriter, r *http.Request) {
 	}
 	defer fileRequest.Body.Close()
 
-	decryptionService := encryption_service.NewEncryptionService(*scwWrapper)
+	decryptionService := encryption_service.NewEncryptionService(scwWrapper)
 	emailBytes, err := hex.DecodeString(encryptedMailAddress)
 	if err != nil {
 		log.Error().Err(err).Msg("Error decoding email")
