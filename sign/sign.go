@@ -20,7 +20,8 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	log.Info().Msg("Signature request received")
-	isValid := helper.VerifyApiKey(r, helper.RetrievApiKeys())
+	scwWrapper := secret_wrapper.NewScaleWayWrapperFromEnv()
+	isValid := helper.VerifyApiKey(r, helper.RetrievApiKeys(scwWrapper))
 	if !isValid {
 		log.Error().Msg("Unauthorized request")
 		w.Header().Set("Content-Type", "text/plain")

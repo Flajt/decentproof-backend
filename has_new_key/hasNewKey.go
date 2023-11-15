@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Flajt/decentproof-backend/helper"
+	scw_secret_manager "github.com/Flajt/decentproof-backend/scw_secret_wrapper"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -15,7 +16,9 @@ func HandleHasNewKey(w http.ResponseWriter, r *http.Request) {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	log.Info().Msg("Has new key request")
-	keys := helper.RetrievApiKeys()
+	scw_secret_manager := scw_secret_manager.NewScaleWayWrapperFromEnv()
+	keys := helper.RetrievApiKeys(scw_secret_manager)
+
 	requestKey := strings.Split(r.Header.Get("Authorization"), " ")[1]
 	isValid := helper.VerifyApiKey(r, keys)
 	if isValid {

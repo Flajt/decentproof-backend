@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Flajt/decentproof-backend/helper"
+	scw_secret_manager "github.com/Flajt/decentproof-backend/scw_secret_wrapper"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -28,7 +29,8 @@ func HandleGetNewKey(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		log.Info().Msg("No Error validating AppCheck token")
-		apiKeys := helper.RetrievApiKeys()
+		scwWrapper := scw_secret_manager.NewScaleWayWrapperFromEnv()
+		apiKeys := helper.RetrievApiKeys(scwWrapper)
 		if success {
 			log.Info().Msg("Valid App Check token,adding api key to response")
 			w.WriteHeader(http.StatusOK)
