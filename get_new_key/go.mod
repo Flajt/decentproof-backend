@@ -9,6 +9,7 @@ replace github.com/Flajt/decentproof-backend/scw_secret_wrapper => ../scw_secret
 require (
 	firebase.google.com/go/v4 v4.12.1
 	github.com/Flajt/decentproof-backend/helper v0.0.0-00010101000000-000000000000
+	github.com/Flajt/decentproof-backend/scw_secret_wrapper v0.0.0-00010101000000-000000000000
 	github.com/rs/zerolog v1.31.0
 	github.com/scaleway/serverless-functions-go v0.1.2
 	google.golang.org/api v0.143.0
@@ -22,7 +23,6 @@ require (
 	cloud.google.com/go/iam v1.1.2 // indirect
 	cloud.google.com/go/longrunning v0.5.1 // indirect
 	cloud.google.com/go/storage v1.33.0 // indirect
-	github.com/Flajt/decentproof-backend/scw_secret_wrapper v0.0.0-00010101000000-000000000000 // indirect
 	github.com/MicahParks/keyfunc v1.9.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
