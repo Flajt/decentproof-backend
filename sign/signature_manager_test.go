@@ -43,7 +43,7 @@ func TestInitalisation(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		defer scw_secret_wrapper.CleanUp(t)
+		//defer scw_secret_wrapper.CleanUp(t)
 
 	})
 	t.Run("signing hash", func(t *testing.T) {
@@ -76,10 +76,10 @@ func TestInitalisation(t *testing.T) {
 		if isValid != true {
 			t.Errorf("Expected true, got %v", isValid)
 		}
-		defer scw_secret_wrapper.CleanUp(t)
+		//defer scw_secret_wrapper.CleanUp(t)
 
 	})
-	t.Cleanup(func() { scw_secret_wrapper.CleanUp(t) })
+	//t.Cleanup(func() { scw_secret_wrapper.CleanUp(t) })
 
 }
 
