@@ -55,7 +55,7 @@ func TestCronjob(t *testing.T) {
 		if versionHolder.TotalCount != uint32(want) {
 			t.Errorf("Got %d secrets, wanted %d", versionHolder.TotalCount, want)
 		}
-		scw_wrapper.CleanUp(t)
+		//scw_wrapper.CleanUp(t)
 	})
 
 	t.Run("with two entries", func(t *testing.T) {
@@ -66,7 +66,7 @@ func TestCronjob(t *testing.T) {
 			t.Error(err)
 		}
 
-		if err := wrapper.CreateNewSecretVersion(*secret, []byte("test2")); err != nil {
+		if err := wrapper.CreateNewSecretVersion(secret, []byte("test2")); err != nil {
 			t.Error(err)
 		}
 		decentproof_cronjob.Handle(&MockResponseWriter{}, nil)
@@ -88,5 +88,5 @@ func TestCronjob(t *testing.T) {
 		}
 	})
 
-	t.Cleanup(func() { scw_wrapper.CleanUp(t) })
+	//t.Cleanup(func() { scw_wrapper.CleanUp(t) })
 }

@@ -23,7 +23,7 @@ type IEncryptionService interface {
 }
 
 type EncryptionService struct {
-	scwWrapper *scw_secret_manager.ScalewayWrapper
+	scwWrapper scw_secret_manager.IScaleWayWrapper
 	// Key for offline testing only, this can be used to replace the scwWrapper, 32bits are required!
 	key *[]byte
 }
@@ -155,8 +155,8 @@ func (e *EncryptionService) DecryptData(data []byte, nonce []byte) ([]byte, erro
 	return outPut, nil
 }
 
-func NewEncryptionService(scwWrapper scw_secret_manager.ScalewayWrapper) IEncryptionService {
-	return &EncryptionService{scwWrapper: &scwWrapper, key: nil}
+func NewEncryptionService(scwWrapper scw_secret_manager.IScaleWayWrapper) IEncryptionService {
+	return &EncryptionService{scwWrapper: scwWrapper, key: nil}
 }
 func NewEncryptionServiceFromKey(keyAsBytes []byte) IEncryptionService {
 	if len(keyAsBytes) != 32 {

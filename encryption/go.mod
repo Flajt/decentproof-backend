@@ -9,6 +9,7 @@ replace github.com/Flajt/decentproof-backend/helper => ../helper
 require (
 	github.com/Flajt/decentproof-backend/helper v0.0.0-00010101000000-000000000000
 	github.com/Flajt/decentproof-backend/scw_secret_wrapper v0.0.0-20231030170957-7048de19456b
+	go.uber.org/mock v0.3.0
 )
 
 require (

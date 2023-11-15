@@ -12,7 +12,7 @@ import (
 
 type SignatureManager struct {
 	privKey       ecdsa.PrivateKey
-	secretManager *secret_wrapper.ScalewayWrapper
+	secretManager secret_wrapper.IScaleWayWrapper
 }
 
 func (sm *SignatureManager) InitSignatureManager() error {
@@ -48,7 +48,7 @@ func (sm *SignatureManager) InitSignatureManager() error {
 	sm.privKey = *privKey
 	return nil
 }
-func NewSignatureManager(secretManager *secret_wrapper.ScalewayWrapper) *SignatureManager {
+func NewSignatureManager(secretManager secret_wrapper.IScaleWayWrapper) *SignatureManager {
 	return &SignatureManager{secretManager: secretManager}
 }
 
