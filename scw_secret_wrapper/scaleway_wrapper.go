@@ -16,6 +16,15 @@ type SecretVersionHolder struct {
 	SecretVersions []*secret_manager.SecretVersion
 	TotalCount     uint32
 }
+type IScaleWayWrapper interface {
+	ListSecrets(names ...string) (SecretHolder, error)
+	ListSecretVersions(secretID string) (SecretVersionHolder, error)
+	GetSecretData(secretName string, revision string) ([]byte, error)
+	SetSecret(secretName string, secretValue []byte) (*secret_manager.Secret, error)
+	CreateNewSecretVersion(secret secret_manager.Secret, data []byte) error
+	DeleteSecret(id string) error
+	DeleteSecretVersion(id string, revision string) error
+}
 
 type ScalewayWrapper struct {
 	Client     scw.Client
@@ -31,7 +40,7 @@ type ScaleWaySetupData struct {
 }
 
 // Used godotenv to read you enviroment variables
-func NewScaleWayWrapper(setupData ScaleWaySetupData) *ScalewayWrapper {
+func NewScaleWayWrapper(setupData ScaleWaySetupData) IScaleWayWrapper {
 
 	if client, err := scw.NewClient(
 		scw.WithAuth(setupData.AccessKey, setupData.SecretKey),
@@ -44,7 +53,7 @@ func NewScaleWayWrapper(setupData ScaleWaySetupData) *ScalewayWrapper {
 		return &ScalewayWrapper{Client: *client, Api: api, PROJECT_ID: setupData.ProjectID}
 	}
 }
-func NewScaleWayWrapperFromEnv() *ScalewayWrapper {
+func NewScaleWayWrapperFromEnv() IScaleWayWrapper {
 	return NewScaleWayWrapper(ScaleWaySetupData{AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), Region: os.Getenv("SCW_DEFAULT_REGION")})
 }
 
