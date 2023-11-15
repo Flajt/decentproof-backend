@@ -3,6 +3,8 @@ module github.com/Flajt/decentproof-backend/webhook
 go 1.20
 
 replace github.com/Flajt/decentproof-backend/originstamp => ../originstamp
+replace github.com/Flajt/decentproof-backend/encryption => ../encryption
+replace github.com/Flajt/decentproof-backend/scw_secret_wrapper => ../scw_secret_wrapper
 
 require (
 	github.com/Flajt/decentproof-backend/originstamp v0.0.0-00010101000000-000000000000

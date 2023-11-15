@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	encryption_service "github.com/Flajt/decentproof-backend/encryption"
 	"github.com/Flajt/decentproof-backend/helper"
 	"github.com/Flajt/decentproof-backend/originstamp"
 	models "github.com/Flajt/decentproof-backend/originstamp/models"
@@ -49,7 +50,20 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	APIKEY := os.Getenv("ORIGINSTAMP_API_KEY")
-	webhookUrl := os.Getenv("WEBHOOK_URL") + "?mail=" + holder.Email
+	webhookUrl := os.Getenv("WEBHOOK_URL")
+	if holder.Email != "" {
+		encryptionService := encryption_service.NewEncryptionService(*scw_wrapper)
+		encryptionData, err := encryptionService.EncryptData([]byte(holder.Email))
+		if err != nil {
+			log.Error().Err(err).Msg("Can't encrypt email")
+			w.Header().Set("Content-Type", "text/plain")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		webhookUrl += "?mail=" + hex.EncodeToString(encryptionData.Data) + "&nonce=" + hex.EncodeToString(encryptionData.Nonce)
+	} else {
+		webhookUrl = ""
+	}
 	client := originstamp.NewOriginStampApiClient(APIKEY)
 	bitcoinNotificationTarget := models.OriginStampNotificationTarget{Target: webhookUrl, NotificationType: 1, Currency: 0}
 	etheriumNotificationTarget := models.OriginStampNotificationTarget{Target: webhookUrl, NotificationType: 1, Currency: 1}

@@ -8,10 +8,13 @@ replace github.com/Flajt/decentproof-backend/scw_secret_wrapper => ../scw_secret
 
 replace github.com/Flajt/decentproof-backend/originstamp => ../originstamp
 
+replace github.com/Flajt/decentproof-backend/encryption => ../encryption
+
 require (
+	github.com/Flajt/decentproof-backend/encryption v0.0.0-00010101000000-000000000000
 	github.com/Flajt/decentproof-backend/helper v0.0.0-00010101000000-000000000000
 	github.com/Flajt/decentproof-backend/originstamp v0.0.0-00010101000000-000000000000
-	github.com/Flajt/decentproof-backend/scw_secret_wrapper v0.0.0-00010101000000-000000000000
+	github.com/Flajt/decentproof-backend/scw_secret_wrapper v0.0.0-20231030170957-7048de19456b
 	github.com/joho/godotenv v1.5.1
 	github.com/rs/zerolog v1.31.0
 	github.com/scaleway/serverless-functions-go v0.1.2

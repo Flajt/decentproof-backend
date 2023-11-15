@@ -2,11 +2,14 @@ package webhook
 
 import (
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"testing"
 
+	encryption_service "github.com/Flajt/decentproof-backend/encryption"
 	models "github.com/Flajt/decentproof-backend/originstamp/models"
+	scw_secret_manager "github.com/Flajt/decentproof-backend/scw_secret_wrapper"
 )
 
 type MockResponseWriter struct {
@@ -33,7 +36,15 @@ func (m *MockResponseWriter) Write(data []byte) (int, error) {
 
 func TestWebhookHandler(t *testing.T) {
 	t.Run("Valid input + email", func(t *testing.T) {
-		validEmail := "spark0fcr3ation@gmail.com"
+		scwWrapper := scw_secret_manager.NewScaleWayWrapperFromEnv()
+		encryptionService := encryption_service.NewEncryptionService(*scwWrapper)
+		validEmail := "myEmail@myDomain.com"
+		encryptionData, err := encryptionService.EncryptData([]byte(validEmail))
+		hexEmail := hex.EncodeToString(encryptionData.Data)
+		hexNonce := hex.EncodeToString(encryptionData.Nonce)
+		if err != nil {
+			t.Errorf("Error encrypting email: %v", err)
+		}
 		reqBody := models.OriginStampWebhookRequestBody{
 			Created:     false,
 			DateCreated: 1541203188245,
@@ -55,7 +66,7 @@ func TestWebhookHandler(t *testing.T) {
 			t.Errorf("Error marshalling request body: %v", err)
 		}
 
-		req, err := http.NewRequest("POST", "?mail="+validEmail, bytes.NewBuffer(reqBytes))
+		req, err := http.NewRequest("POST", "?mail="+hexEmail+"&nonce="+hexNonce, bytes.NewBuffer(reqBytes))
 		if err != nil {
 			t.Errorf("Error creating request: %v", err)
 		}
