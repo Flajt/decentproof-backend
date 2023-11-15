@@ -23,6 +23,9 @@ TODO: Implement docs, contribution tips
     - helper => has helper functions for authentication
     - util => currently only contains a script to generate public and private key pairs
 
+- Other
+    - encryption_service => For en- & decryption of data with AES encryption
+
 
 ## How to get started
 
@@ -47,11 +50,12 @@ SECRET_KEY=<your-secret-key-for signatures> # use uti/generate_keys.go to genera
 SCW_EMAIL_SECRET=<your-secret-key-with-email-permissions>
 WEBHOOK_URL=<the-url-for-the-webhook-callback> # if you don't set a domain you will need to deploy it first to get it.
 PRIVATE_KEY=<the-private-key-for-signatures> # this one needs to be in the scaleway secret manager not .env file !
+ENCRYPTION_KEY=<encryption-key-32bytes-for-mail> # only in secret manager!
 ```
 The issue is it's nearly needed everywhere, in every function, in every test folder, everywhere...
 So please load it into your terminal enviroment. You can use my script in utils for that: `util/load_env.go`. This should load all env vars into your terminal (tested in VSCode), use the `--path` flag to pass the .env file path.
 
-**NOTE:** Currently the Github Secret for Originstamp Api and E-Mail Secret are the same for DEV as for PROD. The latter should be changed at some point in time. 
+**NOTE**: Currently the Github Secret for Originstamp Api and E-Mail Secret are the same for DEV as for PROD. The latter should be changed at some point in time. 
 
 ## How to Test
 
@@ -64,12 +68,17 @@ Currently the following packages offer tests: <br>
 - cronjob
 - scw_secret_wrapper
 - helper
+- webhook
+- encryption_service
 
 More support for functions should be added in the future.
 **Important:** Nearly all currently available tests are *E2E* and require access to scaleway 
 
 <br>
+
 **Note:** It's not planned to add teststing for originstamp related features due to the monthly limit of 5 free documents and to not clutter the blockchain.
+
+**Note2:** Currently tests which use the secret manager wipe all secrets after they are done, which needs to be resolved!
 
 ## Why so many packages?
 Yeah... about this: <br>
