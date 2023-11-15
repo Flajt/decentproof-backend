@@ -7,21 +7,25 @@ import (
 	"github.com/scaleway/scaleway-sdk-go/scw"
 )
 
+type Secret secret_manager.Secret
+
+type SecretVersion secret_manager.SecretVersion
+
 type SecretHolder struct {
-	Secrets    []*secret_manager.Secret
+	Secrets    []*Secret
 	TotalCount uint32
 }
 
 type SecretVersionHolder struct {
-	SecretVersions []*secret_manager.SecretVersion
+	SecretVersions []SecretVersion
 	TotalCount     uint32
 }
 type IScaleWayWrapper interface {
 	ListSecrets(names ...string) (SecretHolder, error)
 	ListSecretVersions(secretID string) (SecretVersionHolder, error)
 	GetSecretData(secretName string, revision string) ([]byte, error)
-	SetSecret(secretName string, secretValue []byte) (*secret_manager.Secret, error)
-	CreateNewSecretVersion(secret secret_manager.Secret, data []byte) error
+	SetSecret(secretName string, secretValue []byte) (Secret, error)
+	CreateNewSecretVersion(secret Secret, data []byte) error
 	DeleteSecret(id string) error
 	DeleteSecretVersion(id string, revision string) error
 }
@@ -62,13 +66,21 @@ func (scalewayWrapper *ScalewayWrapper) ListSecrets(names ...string) (SecretHold
 		if secrets, err := scalewayWrapper.Api.ListSecrets(&secret_manager.ListSecretsRequest{ProjectID: &scalewayWrapper.PROJECT_ID, Name: &names[0]}); err != nil {
 			return SecretHolder{}, err
 		} else {
-			return SecretHolder{Secrets: secrets.Secrets, TotalCount: secrets.TotalCount}, nil
+			secretStore := make([]*Secret, len(secrets.Secrets))
+			for i, secret := range secrets.Secrets {
+				secretStore[i] = (*Secret)(secret)
+			}
+			return SecretHolder{Secrets: secretStore, TotalCount: secrets.TotalCount}, nil
 		}
 	} else {
 		if secrets, err := scalewayWrapper.Api.ListSecrets(&secret_manager.ListSecretsRequest{ProjectID: &scalewayWrapper.PROJECT_ID}); err != nil {
 			return SecretHolder{}, err
 		} else {
-			return SecretHolder{Secrets: secrets.Secrets, TotalCount: secrets.TotalCount}, nil
+			secretStore := make([]*Secret, len(secrets.Secrets))
+			for i, secret := range secrets.Secrets {
+				secretStore[i] = (*Secret)(secret)
+			}
+			return SecretHolder{Secrets: secretStore, TotalCount: secrets.TotalCount}, nil
 		}
 	}
 
@@ -78,7 +90,11 @@ func (ScalewayWrapper *ScalewayWrapper) ListSecretVersions(secretID string) (Sec
 	if secrets, err := ScalewayWrapper.Api.ListSecretVersions(&secret_manager.ListSecretVersionsRequest{SecretID: secretID}); err != nil {
 		return SecretVersionHolder{}, err
 	} else {
-		return SecretVersionHolder{SecretVersions: secrets.Versions, TotalCount: secrets.TotalCount}, nil
+		secretVersions := make([]SecretVersion, len(secrets.Versions))
+		for i, secretVersion := range secrets.Versions {
+			secretVersions[i] = SecretVersion(*secretVersion)
+		}
+		return SecretVersionHolder{SecretVersions: secretVersions, TotalCount: secrets.TotalCount}, nil
 	}
 }
 
@@ -95,20 +111,20 @@ func (scalewayWrapper *ScalewayWrapper) GetSecretData(secretName string, revisio
 	}
 }
 
-func (scalewayWrapper *ScalewayWrapper) SetSecret(secretName string, secretValue []byte) (*secret_manager.Secret, error) {
+func (scalewayWrapper *ScalewayWrapper) SetSecret(secretName string, secretValue []byte) (Secret, error) {
 
 	secret, err := scalewayWrapper.Api.CreateSecret(&secret_manager.CreateSecretRequest{Name: secretName, Type: secret_manager.SecretTypeUnknownSecretType})
 	if err != nil {
-		return nil, err
+		return Secret{}, err
 	}
 	if _, err := scalewayWrapper.Api.CreateSecretVersion(&secret_manager.CreateSecretVersionRequest{SecretID: secret.ID, Data: secretValue}); err != nil {
-		return nil, err
+		return Secret{}, err
 	}
-	return secret, nil
+	return Secret(*secret), nil
 
 }
 
-func (scalewayWrapper *ScalewayWrapper) CreateNewSecretVersion(secret secret_manager.Secret, data []byte) error {
+func (scalewayWrapper *ScalewayWrapper) CreateNewSecretVersion(secret Secret, data []byte) error {
 	if _, err := scalewayWrapper.Api.CreateSecretVersion(&secret_manager.CreateSecretVersionRequest{SecretID: secret.ID, Data: data}); err != nil {
 		return err
 	}

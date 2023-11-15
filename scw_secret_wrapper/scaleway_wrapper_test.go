@@ -40,7 +40,7 @@ func TestSecretCreation(t *testing.T) {
 		t.Error(err)
 		t.Logf("THIS IS OK IF YOU DONT CONNECT TO THE SCALEWAY CONSOLE")
 	}
-	if secret == nil {
+	if secret.ID == "" {
 		t.Errorf("Secret is nil")
 	}
 
@@ -97,7 +97,7 @@ func TestCreateSecretVersion(t *testing.T) {
 		t.Error(err)
 	}
 
-	if err := wrapper.CreateNewSecretVersion(*secret, []byte("c")); err != nil {
+	if err := wrapper.CreateNewSecretVersion(secret, []byte("c")); err != nil {
 		t.Error(err)
 	}
 	if versionHolder, err := wrapper.ListSecretVersions(secret.ID); err != nil {
@@ -228,7 +228,7 @@ func TestSecretAccessAfterDeletion(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		err = client.CreateNewSecretVersion(*secret, []byte("testValue2"))
+		err = client.CreateNewSecretVersion(secret, []byte("testValue2"))
 		if err != nil {
 			t.Error(err)
 		}
