@@ -51,7 +51,7 @@ WEBHOOK_URL=<the-url-for-the-webhook-callback> # if you don't set a domain you w
 PRIVATE_KEY=<the-private-key-for-signatures> # this one needs to be in the scaleway secret manager, or local mode!
 ENCRYPTION_KEY=<encryption-key-32bytes-for-mail> # only in secret manager, or local mode!
 DEBUG=<TRUE-or-anything-else> # if set to TRUE you can run the functions in local mode, which should improve testing capabilities and local development
-apiKey=<base64-encoded-32byte-long-key> 
+API_KEY=<base64-encoded-32byte-long-key> 
 ```
 The issue is it's nearly needed everywhere, in every function, in every test folder, everywhere...
 So please load it into your terminal enviroment. You can use my script in utils for that: `util/load_env.go`. This should load all env vars into your terminal (tested in VSCode), use the `--path` flag to pass the .env file path.
