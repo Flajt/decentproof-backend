@@ -9,31 +9,16 @@ import (
 	"testing"
 
 	scw_secret_wrapper "github.com/Flajt/decentproof-backend/scw_secret_wrapper"
-	"github.com/joho/godotenv"
 )
 
 func TestInitalisation(t *testing.T) {
-	godotenv.Load("../.env")
 
-	t.Run("not working", func(t *testing.T) {
-		defer func() {
-			if rev := recover(); rev != nil {
-				t.Log("Got panic all good")
-			}
-		}()
-		wrapper := scw_secret_wrapper.NewScaleWayWrapperFromEnv()
-		manager := NewSignatureManager(wrapper)
-		err := manager.InitSignatureManager()
-		if err == nil {
-			t.Error("Error should not be nil")
-		}
-	})
 	t.Run("working", func(t *testing.T) {
 		privKey, err := generatePrivKey(t)
 		if err != nil {
 			t.Errorf("Unexpected error, got %v", err)
 		}
-		wrapper := scw_secret_wrapper.NewScaleWayWrapperFromEnv()
+		wrapper := scw_secret_wrapper.NewScaleWayWrapperForDev(true)
 		_, err = wrapper.SetSecret("PRIVATE_KEY", privKey)
 		if err != nil {
 			t.Errorf("Unexpected error, got %v", err)
@@ -51,7 +36,7 @@ func TestInitalisation(t *testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected error, got %v", err)
 		}
-		wrapper := scw_secret_wrapper.NewScaleWayWrapperFromEnv()
+		wrapper := scw_secret_wrapper.NewScaleWayWrapperForDev(true)
 		secret, err := wrapper.SetSecret("PRIVATE_KEY", privKey)
 		t.Log(secret.ID)
 

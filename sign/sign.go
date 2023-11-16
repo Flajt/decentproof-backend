@@ -17,11 +17,13 @@ import (
 )
 
 func HandleSignature(w http.ResponseWriter, r *http.Request) {
+	isDebug := os.Getenv("DEBUG") == "TRUE"
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	var scwWrapper secret_wrapper.IScaleWayWrapper
 	log.Info().Msg("Signature request received")
-	if os.Getenv("DEBUG") == "TRUE" {
+	log.Debug().Msgf("DEBUG MODE: %v", isDebug)
+	if isDebug {
 		scwWrapper = secret_wrapper.NewScaleWayWrapperForDev()
 	} else {
 		scwWrapper = secret_wrapper.NewScaleWayWrapperFromEnv()
