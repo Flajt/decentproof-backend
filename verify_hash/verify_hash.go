@@ -17,7 +17,12 @@ func HandleHashVerification(w http.ResponseWriter, r *http.Request) {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	log.Info().Msg("Handling hash verification")
-	scwWrapper := scw_secret_manager.NewScaleWayWrapperFromEnv()
+	var scwWrapper scw_secret_manager.IScaleWayWrapper
+	if os.Getenv("DEBUG") == "TRUE" {
+		scwWrapper = scw_secret_manager.NewScaleWayWrapperForDev()
+	} else {
+		scwWrapper = scw_secret_manager.NewScaleWayWrapperFromEnv()
+	}
 	apiKeys := helper.RetrievApiKeys(scwWrapper)
 	isValid := helper.VerifyApiKey(r, apiKeys)
 	if !isValid {
