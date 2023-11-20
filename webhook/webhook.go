@@ -29,8 +29,12 @@ func HandleWebhookCallBack(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Done"))
 		return
 	}
-	scwWrapper := scw_secret_manager.NewScaleWayWrapperFromEnv()
-
+	var scwWrapper scw_secret_manager.IScaleWayWrapper
+	if os.Getenv("DEBUG") == "TRUE" {
+		scwWrapper = scw_secret_manager.NewScaleWayWrapperForDev()
+	} else {
+		scwWrapper = scw_secret_manager.NewScaleWayWrapperFromEnv()
+	}
 	orignStampApi := originstamp.NewOriginStampApiClient(os.Getenv("ORIGINSTAMP_API_KEY"))
 	var requestBody models.OriginStampWebhookRequestBody
 	json.NewDecoder(r.Body).Decode(&requestBody)

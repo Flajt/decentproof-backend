@@ -3,7 +3,6 @@ Backend for decentproof-app
 
 For information, or raising issues, please checkout the decentproof-app [repository](https://github.com/Flajt/decentproof-app).
 
-TODO: Implement docs, contribution tips
 
 ## Project Structure
 
@@ -20,7 +19,7 @@ TODO: Implement docs, contribution tips
     - scw_secret_wrapper => wraps scaleways secret manager
 
 - Util
-    - helper => has helper functions for authentication
+    - helper => has helper functions for authentication & key generation
     - util => currently only contains a script to generate public and private key pairs
 
 - Other
@@ -39,23 +38,38 @@ TODO: Implement docs, contribution tips
 ### .env file
 Your .env file needs to contain the following data:
 ```Shell
-SCW_ACCESS_KEY=<my-access-key-here>
-SCW_SECRET_KEY=<my-secret-key-here>
-SCW_DEFAULT_ORGANIZATION_ID=<my-org-id-here>
-SCW_DEFAULT_PROJECT_ID=<my-project-id-here>
-SCW_DEFAULT_REGION=<my-scaleway-defualt-region-here>
-GOOGLE_ADMIN_SDK_CREDS=<my-firebase-admin-sdk-key-here>
-ORIGINSTAMP_API_KEY=<my-api-key-here>
+SCW_ACCESS_KEY=<my-access-key-here> # can be empty in local mode
+SCW_SECRET_KEY=<my-secret-key-here> # can be empty in local mode
+SCW_DEFAULT_ORGANIZATION_ID=<my-org-id-here> # can be empty in local mode
+SCW_DEFAULT_PROJECT_ID=<my-project-id-here> # can be empty in local mode
+SCW_DEFAULT_REGION=<my-scaleway-defualt-region-here> # can be empty in local mode
+GOOGLE_ADMIN_SDK_CREDS=<my-firebase-admin-sdk-key-here> # can be empty in local mode
+ORIGINSTAMP_API_KEY=<my-api-key-here> # can be empty in local mode
 SECRET_KEY=<your-secret-key-for signatures> # use uti/generate_keys.go to generate it
-SCW_EMAIL_SECRET=<your-secret-key-with-email-permissions>
+SCW_EMAIL_SECRET=<your-secret-key-with-email-permissions> # can be empty in local mode
 WEBHOOK_URL=<the-url-for-the-webhook-callback> # if you don't set a domain you will need to deploy it first to get it.
-PRIVATE_KEY=<the-private-key-for-signatures> # this one needs to be in the scaleway secret manager not .env file !
-ENCRYPTION_KEY=<encryption-key-32bytes-for-mail> # only in secret manager!
+PRIVATE_KEY=<the-private-key-for-signatures> # this one needs to be in the scaleway secret manager, or local mode!
+ENCRYPTION_KEY=<encryption-key-32bytes-for-mail> # only in secret manager, or local mode!
+DEBUG=<TRUE-or-anything-else> # if set to TRUE you can run the functions in local mode, which should improve testing capabilities and local development
+API_KEY=<base64-encoded-32byte-long-key> 
 ```
 The issue is it's nearly needed everywhere, in every function, in every test folder, everywhere...
 So please load it into your terminal enviroment. You can use my script in utils for that: `util/load_env.go`. This should load all env vars into your terminal (tested in VSCode), use the `--path` flag to pass the .env file path.
 
 **NOTE**: Currently the Github Secret for Originstamp Api and E-Mail Secret are the same for DEV as for PROD. The latter should be changed at some point in time. 
+
+## "Local Mode"
+What I've mentioned as local mode is just running the functitions locally from the `cmd` folder as explained below in testing (this can also be used for local development). If you set `DEBUG=TRUE` a local implementation of the scw_secret_wrapper is used which loads the three most important api keys into memory. 
+
+It will also disable app check for the time beeing, so you don't need to create a firebase account either.
+
+If you think it makes sense to sperate firebase app check "dis- & enablement" into a sperate var please open a discussion.
+
+> This doesn't work for cronjobs and webhooks will only work partially as it depends on both an originstamp account as well as a working SMTP service to send E-Mails which in turn uses the `SCW_DEFAULT_PROJECT_ID` & `SCW_EMAIL_SECRET` as credentials
+
+### SMTP 
+If you know an easy way to mock / setup a local SMTP service, feel free to open an issue / discussion.
+In the meantime if you want to deploy a SMTP service to test things locally, you need to replace the `smtpServer` variable in `webhook.go` 
 
 ## How to Test
 
@@ -65,11 +79,12 @@ So please load it into your terminal enviroment. You can use my script in utils 
 
 ### Automated Tests
 Currently the following packages offer tests: <br>
-- cronjob
+- cronjob (currently not applicable)
 - scw_secret_wrapper
 - helper
 - webhook
 - encryption_service
+- sign (currently not applicable)
 
 More support for functions should be added in the future.
 **Important:** Nearly all currently available tests are *E2E* and require access to scaleway 

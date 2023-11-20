@@ -3,6 +3,7 @@ package has_new_key
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/Flajt/decentproof-backend/helper"
@@ -16,8 +17,13 @@ func HandleHasNewKey(w http.ResponseWriter, r *http.Request) {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	log.Info().Msg("Has new key request")
-	scw_secret_manager := scw_secret_manager.NewScaleWayWrapperFromEnv()
-	keys := helper.RetrievApiKeys(scw_secret_manager)
+	var scwWrapper scw_secret_manager.IScaleWayWrapper
+	if os.Getenv("DEBUG") == "TRUE" {
+		scwWrapper = scw_secret_manager.NewScaleWayWrapperForDev()
+	} else {
+		scwWrapper = scw_secret_manager.NewScaleWayWrapperFromEnv()
+	}
+	keys := helper.RetrievApiKeys(scwWrapper)
 
 	requestKey := strings.Split(r.Header.Get("Authorization"), " ")[1]
 	isValid := helper.VerifyApiKey(r, keys)

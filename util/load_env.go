@@ -27,7 +27,7 @@ func main() {
 	scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {
-		contentArray := strings.Split(scanner.Text(), "=")
+		contentArray := strings.SplitN(scanner.Text(), "=", 2)
 		if verbose {
 			fmt.Println("Now loading: " + contentArray[0])
 		}

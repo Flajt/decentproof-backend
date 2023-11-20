@@ -15,7 +15,7 @@ type AppcheckWrapper struct {
 func NewAppcheckWrapper() *AppcheckWrapper {
 	//Important GOOGLE_ADMIN_SDK_CREDS needs to be set for this to work
 	if json, success := os.LookupEnv("GOOGLE_ADMIN_SDK_CREDS"); !success {
-		panic("Admin Creds not found in enviroment")
+		panic("Admin Creds not found in enviroment, if you want to use local mode set DEBUG=TRUE && GOOGLE_ADMIN_SDK_CREDS=any-string")
 	} else {
 		opt := option.WithCredentialsJSON([]byte(json))
 		if app, err := firebase.NewApp(context.Background(), nil, opt); err != nil {
@@ -27,12 +27,16 @@ func NewAppcheckWrapper() *AppcheckWrapper {
 }
 
 func (appcheckWrapper *AppcheckWrapper) CheckApp(token string) (bool, error) {
-	if client, err := appcheckWrapper.App.AppCheck(context.Background()); err != nil {
-		panic(err)
-	} else {
-		if _, err := client.VerifyToken(token); err != nil {
-			return false, err
-		}
+	if os.Getenv("DEBUG") == "TRUE" {
 		return true, nil
+	} else {
+		if client, err := appcheckWrapper.App.AppCheck(context.Background()); err != nil {
+			panic(err)
+		} else {
+			if _, err := client.VerifyToken(token); err != nil {
+				return false, err
+			}
+			return true, nil
+		}
 	}
 }

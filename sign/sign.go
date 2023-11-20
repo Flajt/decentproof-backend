@@ -17,10 +17,17 @@ import (
 )
 
 func HandleSignature(w http.ResponseWriter, r *http.Request) {
+	isDebug := os.Getenv("DEBUG") == "TRUE"
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	var scwWrapper secret_wrapper.IScaleWayWrapper
 	log.Info().Msg("Signature request received")
-	scwWrapper := secret_wrapper.NewScaleWayWrapperFromEnv()
+	log.Debug().Msgf("DEBUG MODE: %v", isDebug)
+	if isDebug {
+		scwWrapper = secret_wrapper.NewScaleWayWrapperForDev()
+	} else {
+		scwWrapper = secret_wrapper.NewScaleWayWrapperFromEnv()
+	}
 	isValid := helper.VerifyApiKey(r, helper.RetrievApiKeys(scwWrapper))
 	if !isValid {
 		log.Error().Msg("Unauthorized request")
@@ -30,8 +37,7 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	scw_wrapper := secret_wrapper.NewScaleWayWrapperFromEnv()
-	signatureManager := NewSignatureManager(scw_wrapper)
+	signatureManager := NewSignatureManager(scwWrapper)
 	signatureManager.InitSignatureManager()
 	jsonDecoder := json.NewDecoder(r.Body)
 	var holder SignatureRequestBody
@@ -53,7 +59,7 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 	APIKEY := os.Getenv("ORIGINSTAMP_API_KEY")
 	webhookUrl := os.Getenv("WEBHOOK_URL")
 	if holder.Email != "" {
-		encryptionService := encryption_service.NewEncryptionService(scw_wrapper)
+		encryptionService := encryption_service.NewEncryptionService(scwWrapper)
 		encryptionData, err := encryptionService.EncryptData([]byte(holder.Email))
 		if err != nil {
 			log.Error().Err(err).Msg("Can't encrypt email")
