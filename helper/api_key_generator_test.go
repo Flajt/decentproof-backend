@@ -1,13 +1,11 @@
-package decentproof_cronjob
+package helper
 
 import (
 	"testing"
-
-	decentproof_cronjob "github.com/Flajt/decentproof-backend/decentproof-cron"
 )
 
 func TestKeyGeneration(t *testing.T) {
-	if key := decentproof_cronjob.GenerateApiKey(); key == "" {
+	if key := GenerateApiKey(32); key == "" {
 		t.Error("Key is empty")
 	} else {
 		if len(key)%4 != 0 {

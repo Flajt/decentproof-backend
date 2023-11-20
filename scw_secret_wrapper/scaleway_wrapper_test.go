@@ -30,34 +30,31 @@ func TestClientCreation(t *testing.T) {
 }
 
 func TestSecretCreation(t *testing.T) {
-	godotenv.Load(".env")
-	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
 
-	wrapper := NewScaleWayWrapper(setupData)
+	wrapper := NewScaleWayWrapperFromEnv()
 	input := bytes.NewBufferString("test")
 	secret, err := wrapper.SetSecret("test", input.Bytes())
 	if err != nil {
 		t.Error(err)
 		t.Logf("THIS IS OK IF YOU DONT CONNECT TO THE SCALEWAY CONSOLE")
 	}
-	if secret == nil {
+	if secret.ID == "" {
 		t.Errorf("Secret is nil")
 	}
 
 	t.Cleanup(func() {
-		CleanUp(t)
+		CleanUp(t, []string{secret.ID})
 	})
 }
 
 func TestListSecrets(t *testing.T) {
-	godotenv.Load(".env")
 	t.Run("check if secrets exists", func(t *testing.T) {
-		var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
 
-		want := 1
-		wrapper := NewScaleWayWrapper(setupData)
+		want := 4 // PRIVATE_KEY, apiKey, ENCRYPTION_KEY, test key
+		wrapper := NewScaleWayWrapperFromEnv()
 		input := bytes.NewBufferString("test")
-		if _, err := wrapper.SetSecret("test", input.Bytes()); err != nil {
+		secret, err := wrapper.SetSecret("test", input.Bytes())
+		if err != nil {
 			t.Error(err)
 		}
 		if secrets, err := wrapper.ListSecrets(); err != nil {
@@ -68,36 +65,34 @@ func TestListSecrets(t *testing.T) {
 			}
 
 		}
-		t.Cleanup(func() { CleanUp(t) })
+		t.Cleanup(func() {
+			CleanUp(t, []string{secret.ID})
+		})
 	})
 }
 
 // Tests if the secret creation fails if the secret name is too short
 func TestFailingSecretCreation(t *testing.T) {
-	godotenv.Load(".env")
-	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
-	wrapper := NewScaleWayWrapper(setupData)
+	wrapper := NewScaleWayWrapperFromEnv()
 	input := bytes.NewBufferString("b")
-	if _, err := wrapper.SetSecret("a", input.Bytes()); err == nil {
+	_, err := wrapper.SetSecret("a", input.Bytes())
+	if err == nil {
 		t.Error(err)
 	}
 
-	t.Cleanup(func() { CleanUp(t) })
+	//t.Cleanup(func() { CleanUp(t, []string{secret.ID}) })
 }
 
 func TestCreateSecretVersion(t *testing.T) {
-	godotenv.Load(".env")
 	///Tests if the secret version is created for a particular secret
-	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
-
-	wrapper := NewScaleWayWrapper(setupData)
+	wrapper := NewScaleWayWrapperFromEnv()
 	input := bytes.NewBufferString("c")
 	secret, err := wrapper.SetSecret("testSecret", input.Bytes())
 	if err != nil {
 		t.Error(err)
 	}
 
-	if err := wrapper.CreateNewSecretVersion(*secret, []byte("c")); err != nil {
+	if err := wrapper.CreateNewSecretVersion(secret, []byte("c")); err != nil {
 		t.Error(err)
 	}
 	if versionHolder, err := wrapper.ListSecretVersions(secret.ID); err != nil {
@@ -107,20 +102,21 @@ func TestCreateSecretVersion(t *testing.T) {
 			t.Errorf("Got %d secrets, wanted %d", versionHolder.TotalCount, 2)
 		}
 
-		t.Cleanup(func() { CleanUp(t) })
+		t.Cleanup(func() { CleanUp(t, []string{secret.ID}) })
 	}
 }
 
 func TestListSecretsWName(t *testing.T) {
 	godotenv.Load(".env")
-	var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
-	wrapper := NewScaleWayWrapper(setupData)
+	wrapper := NewScaleWayWrapperFromEnv()
 	input1 := bytes.NewBufferString("test")
 	input2 := bytes.NewBufferString("test2")
-	if _, err := wrapper.SetSecret("tester", input1.Bytes()); err != nil {
+	secret1, err := wrapper.SetSecret("tester", input1.Bytes())
+	if err != nil {
 		t.Error(err)
 	}
-	if _, err := wrapper.SetSecret("tester2", input2.Bytes()); err != nil {
+	secret2, err := wrapper.SetSecret("tester2", input2.Bytes())
+	if err != nil {
 		t.Error(err)
 	}
 	holder, err := wrapper.ListSecrets("tester")
@@ -131,14 +127,12 @@ func TestListSecretsWName(t *testing.T) {
 	if int(holder.TotalCount) != want {
 		t.Errorf("Got %d secrets, wanted %d", holder.TotalCount, want)
 	}
-	t.Cleanup(func() { CleanUp(t) })
+	t.Cleanup(func() { CleanUp(t, []string{secret1.ID, secret2.ID}) })
 }
 
 func TestValues(t *testing.T) {
 	t.Run("test with string", func(*testing.T) {
-		godotenv.Load(".env")
-		var setupData = ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
-		wrapper := NewScaleWayWrapper(setupData)
+		wrapper := NewScaleWayWrapperFromEnv()
 		const want = "test"
 		input := bytes.NewBufferString("test")
 		secret, err := wrapper.SetSecret("test3", input.Bytes())
@@ -168,6 +162,7 @@ func TestValues(t *testing.T) {
 		if string(data) != want {
 			t.Errorf("Got %s, wanted %s", string(data), want)
 		}
+		t.Cleanup(func() { CleanUp(t, []string{secret.ID}) })
 	})
 	t.Run("test with zertifikate key", func(*testing.T) {
 		godotenv.Load(".env")
@@ -217,8 +212,8 @@ func TestValues(t *testing.T) {
 		if reflect.DeepEqual(bloc.Bytes, bytes) == false {
 			t.Errorf("Got %s, wanted %s", string(data), bytes)
 		}
+		t.Cleanup(func() { CleanUp(t, []string{secret.ID}) })
 	})
-	t.Cleanup(func() { CleanUp(t) })
 }
 
 func TestSecretAccessAfterDeletion(t *testing.T) {
@@ -228,7 +223,7 @@ func TestSecretAccessAfterDeletion(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		err = client.CreateNewSecretVersion(*secret, []byte("testValue2"))
+		err = client.CreateNewSecretVersion(secret, []byte("testValue2"))
 		if err != nil {
 			t.Error(err)
 		}
@@ -250,19 +245,20 @@ func TestSecretAccessAfterDeletion(t *testing.T) {
 			t.Log(err)
 		}
 		var apiKeys []string
-		for _, secret := range secretVersions.SecretVersions {
-			if secret.Status != "destroyed" {
-				data, err := client.GetSecretData("testKey", strconv.FormatUint(uint64(secret.Revision), 10))
+		for _, secretVersion := range secretVersions.SecretVersions {
+			if secretVersion.Status != "destroyed" {
+				data, err := client.GetSecretData("testKey", strconv.FormatUint(uint64(secretVersion.Revision), 10))
 				apiKeys = append(apiKeys, string(data))
 				if err != nil {
 					/// Should also be impossible to not get the data if the rest is true
-					panic(err)
+					t.Error(err)
 				}
 			}
 		}
 		if len(apiKeys) != 1 {
 			t.Errorf("Got %d api keys, wanted %d", len(apiKeys), 1)
 		}
+		t.Cleanup(func() { CleanUp(t, []string{secret.ID}) })
+
 	})
-	t.Cleanup(func() { CleanUp(t) })
 }

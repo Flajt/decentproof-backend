@@ -7,6 +7,7 @@ replace github.com/Flajt/decentproof-backend/scw_secret_wrapper => ../scw_secret
 require (
 	github.com/Flajt/decentproof-backend/scw_secret_wrapper v0.0.0-00010101000000-000000000000
 	github.com/joho/godotenv v1.5.1
+	go.uber.org/mock v0.3.0
 )
 
 require (

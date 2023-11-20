@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	encryption_service "github.com/Flajt/decentproof-backend/encryption"
 	"github.com/Flajt/decentproof-backend/helper"
 	"github.com/Flajt/decentproof-backend/originstamp"
 	models "github.com/Flajt/decentproof-backend/originstamp/models"
@@ -16,10 +17,18 @@ import (
 )
 
 func HandleSignature(w http.ResponseWriter, r *http.Request) {
+	isDebug := os.Getenv("DEBUG") == "TRUE"
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	var scwWrapper secret_wrapper.IScaleWayWrapper
 	log.Info().Msg("Signature request received")
-	isValid := helper.VerifyApiKey(r, helper.RetrievApiKeys())
+	log.Debug().Msgf("DEBUG MODE: %v", isDebug)
+	if isDebug {
+		scwWrapper = secret_wrapper.NewScaleWayWrapperForDev()
+	} else {
+		scwWrapper = secret_wrapper.NewScaleWayWrapperFromEnv()
+	}
+	isValid := helper.VerifyApiKey(r, helper.RetrievApiKeys(scwWrapper))
 	if !isValid {
 		log.Error().Msg("Unauthorized request")
 		w.Header().Set("Content-Type", "text/plain")
@@ -28,8 +37,7 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	scw_wrapper := secret_wrapper.NewScaleWayWrapperFromEnv()
-	signatureManager := NewSignatureManager(scw_wrapper)
+	signatureManager := NewSignatureManager(scwWrapper)
 	signatureManager.InitSignatureManager()
 	jsonDecoder := json.NewDecoder(r.Body)
 	var holder SignatureRequestBody
@@ -49,7 +57,20 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	APIKEY := os.Getenv("ORIGINSTAMP_API_KEY")
-	webhookUrl := os.Getenv("WEBHOOK_URL") + "?mail=" + holder.Email
+	webhookUrl := os.Getenv("WEBHOOK_URL")
+	if holder.Email != "" {
+		encryptionService := encryption_service.NewEncryptionService(scwWrapper)
+		encryptionData, err := encryptionService.EncryptData([]byte(holder.Email))
+		if err != nil {
+			log.Error().Err(err).Msg("Can't encrypt email")
+			w.Header().Set("Content-Type", "text/plain")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		webhookUrl += "?mail=" + hex.EncodeToString(encryptionData.Data) + "&nonce=" + hex.EncodeToString(encryptionData.Nonce)
+	} else {
+		webhookUrl = ""
+	}
 	client := originstamp.NewOriginStampApiClient(APIKEY)
 	bitcoinNotificationTarget := models.OriginStampNotificationTarget{Target: webhookUrl, NotificationType: 1, Currency: 0}
 	etheriumNotificationTarget := models.OriginStampNotificationTarget{Target: webhookUrl, NotificationType: 1, Currency: 1}

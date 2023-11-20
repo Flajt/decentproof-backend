@@ -8,6 +8,7 @@ import (
 
 	"github.com/Flajt/decentproof-backend/helper"
 	"github.com/Flajt/decentproof-backend/originstamp"
+	scw_secret_manager "github.com/Flajt/decentproof-backend/scw_secret_wrapper"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -16,8 +17,13 @@ func HandleHashVerification(w http.ResponseWriter, r *http.Request) {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	log.Info().Msg("Handling hash verification")
-
-	apiKeys := helper.RetrievApiKeys()
+	var scwWrapper scw_secret_manager.IScaleWayWrapper
+	if os.Getenv("DEBUG") == "TRUE" {
+		scwWrapper = scw_secret_manager.NewScaleWayWrapperForDev()
+	} else {
+		scwWrapper = scw_secret_manager.NewScaleWayWrapperFromEnv()
+	}
+	apiKeys := helper.RetrievApiKeys(scwWrapper)
 	isValid := helper.VerifyApiKey(r, apiKeys)
 	if !isValid {
 		log.Error().Msg("Invalid api key")
