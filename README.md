@@ -34,6 +34,7 @@ For information, or raising issues, please checkout the decentproof-app [reposit
 - A scaleway account
 - An originstamp account
 - A firebase account
+- A running instance of mCaptcha if you want to verify w. the website
 
 ### .env file
 Your .env file needs to contain the following data:

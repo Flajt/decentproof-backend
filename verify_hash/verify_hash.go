@@ -24,7 +24,7 @@ func HandleHashVerification(w http.ResponseWriter, r *http.Request) {
 		scwWrapper = scw_secret_manager.NewScaleWayWrapperFromEnv()
 	}
 	apiKeys := helper.RetrievApiKeys(scwWrapper)
-	isValid := helper.VerifyApiKey(r, apiKeys)
+	isValid := helper.Authenticate(r, apiKeys, true)
 	if !isValid {
 		log.Error().Msg("Invalid api key")
 		w.Header().Set("Content-Type", "text/plain")

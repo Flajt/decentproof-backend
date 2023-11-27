@@ -26,7 +26,7 @@ func HandleHasNewKey(w http.ResponseWriter, r *http.Request) {
 	keys := helper.RetrievApiKeys(scwWrapper)
 
 	requestKey := strings.Split(r.Header.Get("Authorization"), " ")[1]
-	isValid := helper.VerifyApiKey(r, keys)
+	isValid := helper.Authenticate(r, keys, false)
 	if isValid {
 		log.Info().Msg("Valid API key, checking if new key is available")
 		if keys[0] == requestKey && len(keys) > 1 { // We have more than one key available, so this one should be the oldest
