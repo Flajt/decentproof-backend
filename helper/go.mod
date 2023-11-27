@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	codeberg.org/gusted/mcaptcha v0.0.0-20220723083913-4f3072e1d570 // indirect
 	github.com/scaleway/scaleway-sdk-go v1.0.0-beta.21 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

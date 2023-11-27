@@ -52,6 +52,9 @@ PRIVATE_KEY=<the-private-key-for-signatures> # this one needs to be in the scale
 ENCRYPTION_KEY=<encryption-key-32bytes-for-mail> # only in secret manager, or local mode!
 DEBUG=<TRUE-or-anything-else> # if set to TRUE you can run the functions in local mode, which should improve testing capabilities and local development
 API_KEY=<base64-encoded-32byte-long-key> 
+MCAPTCHA_SECRET=<your-mcaptcha-secret> # needs to be set if you want to verify with the website, in PROD it's an encrypted secret
+MCAPTCHA_SITEKEY=<your-mcaptcha-site-key> # needs to be set if you want to verify with the website, in PROD it's an encrypted secret
+MCAPTCHA_INSTANCE_URL=<your-mcpatcha-instance-url> # needs to be set if you want to verify w. website
 ```
 The issue is it's nearly needed everywhere, in every function, in every test folder, everywhere...
 So please load it into your terminal enviroment. You can use my script in utils for that: `util/load_env.go`. This should load all env vars into your terminal (tested in VSCode), use the `--path` flag to pass the .env file path.
