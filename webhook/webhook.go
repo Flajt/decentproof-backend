@@ -31,8 +31,10 @@ func HandleWebhookCallBack(w http.ResponseWriter, r *http.Request) {
 	}
 	var scwWrapper scw_secret_manager.IScaleWayWrapper
 	if os.Getenv("DEBUG") == "TRUE" {
+		log.Info().Msg("DEBUG MODE: TRUE")
 		scwWrapper = scw_secret_manager.NewScaleWayWrapperForDev()
 	} else {
+		log.Info().Msg("DEBUG MODE: FALSE")
 		scwWrapper = scw_secret_manager.NewScaleWayWrapperFromEnv()
 	}
 	orignStampApi := originstamp.NewOriginStampApiClient(os.Getenv("ORIGINSTAMP_API_KEY"))
@@ -44,7 +46,7 @@ func HandleWebhookCallBack(w http.ResponseWriter, r *http.Request) {
 	proofBody := models.OriginStampProofRequestBody{Currency: requestBody.Timestamps[0].CurrencyID, HashString: requestBody.HashString, ProofType: 1}
 	data, err := orignStampApi.GetProof(proofBody)
 	if err != nil {
-		log.Error().Err(err).Msg("Error getting proof from OriginStamp API")
+		log.Err(err).Msg("Error getting proof from OriginStamp API")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Something went wrong"))
 		return
