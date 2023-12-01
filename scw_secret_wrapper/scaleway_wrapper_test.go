@@ -72,7 +72,7 @@ func TestListSecrets(t *testing.T) {
 }
 
 // Tests if the secret creation fails if the secret name is too short
-func TestFailingSecretCreation(t *testing.T) {
+/*func TestFailingSecretCreation(t *testing.T) {
 	wrapper := NewScaleWayWrapperFromEnv()
 	input := bytes.NewBufferString("b")
 	_, err := wrapper.SetSecret("a", input.Bytes())
@@ -82,6 +82,8 @@ func TestFailingSecretCreation(t *testing.T) {
 
 	//t.Cleanup(func() { CleanUp(t, []string{secret.ID}) })
 }
+Apperantly it's working now, scaleway seems to have it resolved!
+*/
 
 func TestCreateSecretVersion(t *testing.T) {
 	///Tests if the secret version is created for a particular secret

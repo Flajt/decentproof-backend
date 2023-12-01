@@ -22,7 +22,6 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	//TODO; Find a way to make things less messy
 	wrapper := scw_secret_manager.NewScaleWayWrapper(setupData)
 
-	// Step one: Check for existing keys
 	secretHolder, err := wrapper.ListSecrets("apiKey")
 	if err != nil {
 		log.Error().Msg(err.Error())
@@ -46,55 +45,32 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 			log.Fatal().Msg(err.Error())
 			panic(err)
 		} else {
-			if versionHolder.TotalCount == 2 {
-				log.Info().Msg("Two secrets found, deleting and relacing oldest")
-				firstSecret := versionHolder.SecretVersions[0]
-				secondSecret := versionHolder.SecretVersions[1]
-				secretOneCreationTime := firstSecret.CreatedAt
-				secretTwoCreationTime := secondSecret.CreatedAt
-				firstSecretCreationDateLater := secretOneCreationTime.After(*secretTwoCreationTime)
-				log.Info().Msg("Is first secret newer: " + strconv.FormatBool(firstSecretCreationDateLater))
-				if firstSecretCreationDateLater {
-					log.Debug().Msg("First secret is newer, deleting and replacing second secret")
-					//Delete secret 2
-					if err := wrapper.DeleteSecretVersion(secondSecret.SecretID, strconv.FormatUint(uint64(secondSecret.Revision), 10)); err != nil {
+			if versionHolder.TotalCount >= 2 { // This shouldn't happen normally, only on the first migration and in case someone added additional secret manually
+				log.Info().Msgf(" %v secrets found, deleting all, creating new", versionHolder.TotalCount)
+				for _, version := range versionHolder.SecretVersions {
+					if err := wrapper.DeleteSecretVersion(version.SecretID, strconv.FormatUint(uint64(version.Revision), 10)); err != nil {
 						log.Fatal().Msg(err.Error())
 						returnError(w)
-						panic(err)
-					}
-				} else {
-					log.Info().Msg("Second secret is newer, deleting and replacing first secret")
-
-					if err := wrapper.DeleteSecretVersion(firstSecret.SecretID, strconv.FormatUint(uint64(firstSecret.Revision), 10)); err != nil {
-						log.Fatal().Msg(err.Error())
-						returnError(w)
-						panic(err)
 					}
 					apiKey := helper.GenerateApiKey(32)
 					apiKeyBytes := []byte(apiKey)
-					//TODO: Can this duplication be removed?
-					if firstSecretCreationDateLater {
-						if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[1], apiKeyBytes); err != nil {
-							log.Fatal().Msg(err.Error())
-							returnError(w)
-							panic(err)
-						}
-					} else {
-						if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[0], apiKeyBytes); err != nil {
-							log.Fatal().Msg(err.Error())
-							returnError(w)
-							panic(err)
-						}
+					if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[0], apiKeyBytes); err != nil {
+						log.Fatal().Msg(err.Error())
+						returnError(w)
 					}
 				}
 			} else {
-				log.Debug().Msg("One secret found, creating new one")
+				log.Info().Msg("One secret found, replacing it")
+				oldSecret := versionHolder.SecretVersions[0]
+				if err := wrapper.DeleteSecretVersion(oldSecret.SecretID, strconv.FormatUint(uint64(oldSecret.Revision), 10)); err != nil {
+					log.Fatal().Msg(err.Error())
+					returnError(w)
+				}
 				apiKey := helper.GenerateApiKey(32)
 				apiKeyBytes := []byte(apiKey)
 				if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[0], apiKeyBytes); err != nil {
 					log.Fatal().Msg(err.Error())
 					returnError(w)
-					panic(err)
 				}
 			}
 			// Handle E-Mail encryption key management

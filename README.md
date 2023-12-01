@@ -34,6 +34,7 @@ For information, or raising issues, please checkout the decentproof-app [reposit
 - A scaleway account
 - An originstamp account
 - A firebase account
+- A running instance of mCaptcha if you want to verify w. the website
 
 ### .env file
 Your .env file needs to contain the following data:
@@ -46,12 +47,15 @@ SCW_DEFAULT_REGION=<my-scaleway-defualt-region-here> # can be empty in local mod
 GOOGLE_ADMIN_SDK_CREDS=<my-firebase-admin-sdk-key-here> # can be empty in local mode
 ORIGINSTAMP_API_KEY=<my-api-key-here> # can be empty in local mode
 SECRET_KEY=<your-secret-key-for signatures> # use uti/generate_keys.go to generate it
-SCW_EMAIL_SECRET=<your-secret-key-with-email-permissions> # can be empty in local mode
+EMAIL_SECRET=<your-secret-key-with-email-permissions> # can be empty in local mode
 WEBHOOK_URL=<the-url-for-the-webhook-callback> # if you don't set a domain you will need to deploy it first to get it.
 PRIVATE_KEY=<the-private-key-for-signatures> # this one needs to be in the scaleway secret manager, or local mode!
 ENCRYPTION_KEY=<encryption-key-32bytes-for-mail> # only in secret manager, or local mode!
 DEBUG=<TRUE-or-anything-else> # if set to TRUE you can run the functions in local mode, which should improve testing capabilities and local development
 API_KEY=<base64-encoded-32byte-long-key> 
+MCAPTCHA_SECRET=<your-mcaptcha-secret> # needs to be set if you want to verify with the website, in PROD it's an encrypted secret
+MCAPTCHA_SITEKEY=<your-mcaptcha-site-key> # needs to be set if you want to verify with the website, in PROD it's an encrypted secret
+MCAPTCHA_INSTANCE_URL=<your-mcpatcha-instance-url> # needs to be set if you want to verify w. website
 ```
 The issue is it's nearly needed everywhere, in every function, in every test folder, everywhere...
 So please load it into your terminal enviroment. You can use my script in utils for that: `util/load_env.go`. This should load all env vars into your terminal (tested in VSCode), use the `--path` flag to pass the .env file path.
@@ -65,7 +69,7 @@ It will also disable app check for the time beeing, so you don't need to create 
 
 If you think it makes sense to sperate firebase app check "dis- & enablement" into a sperate var please open a discussion.
 
-> This doesn't work for cronjobs and webhooks will only work partially as it depends on both an originstamp account as well as a working SMTP service to send E-Mails which in turn uses the `SCW_DEFAULT_PROJECT_ID` & `SCW_EMAIL_SECRET` as credentials
+> This doesn't work for cronjobs and webhooks will only work partially as it depends on both an originstamp account as well as a working SMTP service to send E-Mails which in turn uses the `SCW_DEFAULT_PROJECT_ID` & `EMAIL_SECRET` as credentials
 
 ### SMTP 
 If you know an easy way to mock / setup a local SMTP service, feel free to open an issue / discussion.

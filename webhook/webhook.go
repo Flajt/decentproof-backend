@@ -105,7 +105,7 @@ func HandleWebhookCallBack(w http.ResponseWriter, r *http.Request) {
 	smtpServer := "smtp.tem.scw.cloud"
 	smtpPort := 587
 	userName := os.Getenv("SCW_DEFAULT_PROJECT_ID")
-	password := os.Getenv("SCW_EMAIL_SECRET")
+	password := os.Getenv("EMAIL_SECRET")
 
 	server := mail.NewSMTPClient()
 

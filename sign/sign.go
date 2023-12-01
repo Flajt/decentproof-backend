@@ -28,7 +28,7 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 	} else {
 		scwWrapper = secret_wrapper.NewScaleWayWrapperFromEnv()
 	}
-	isValid := helper.VerifyApiKey(r, helper.RetrievApiKeys(scwWrapper))
+	isValid := helper.Authenticate(r, helper.RetrievApiKeys(scwWrapper), false)
 	if !isValid {
 		log.Error().Msg("Unauthorized request")
 		w.Header().Set("Content-Type", "text/plain")
