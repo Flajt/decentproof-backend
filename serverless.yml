@@ -72,6 +72,7 @@ functions:
     handler: webhook/HandleWebhookCallBack
     secret:
       ORIGINSTAMP_API_KEY: ${env:ORIGINSTAMP_API_KEY}
+      SCW_EMAIL_SECRET: ${env:SCW_EMAIL_SECRET}
 
   verify-hash:
     handler: verify_hash/HandleHashVerification

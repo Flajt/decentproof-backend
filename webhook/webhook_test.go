@@ -36,7 +36,7 @@ func (m *MockResponseWriter) Write(data []byte) (int, error) {
 
 func TestWebhookHandler(t *testing.T) {
 	t.Run("Valid input + email", func(t *testing.T) {
-		scwWrapper := scw_secret_manager.NewScaleWayWrapperFromEnv()
+		scwWrapper := scw_secret_manager.NewScaleWayWrapperForDev()
 		encryptionService := encryption_service.NewEncryptionService(scwWrapper)
 		validEmail := "myEmail@myDomain.com"
 		encryptionData, err := encryptionService.EncryptData([]byte(validEmail))
