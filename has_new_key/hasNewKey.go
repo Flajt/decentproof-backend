@@ -19,14 +19,22 @@ func HandleHasNewKey(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msg("Has new key request")
 	var scwWrapper scw_secret_manager.IScaleWayWrapper
 	if os.Getenv("DEBUG") == "TRUE" {
+		log.Info().Msg("DEBUG MODE: TRUE")
 		scwWrapper = scw_secret_manager.NewScaleWayWrapperForDev()
 	} else {
+		log.Info().Msg("DEBUG MODE: FALSE")
 		scwWrapper = scw_secret_manager.NewScaleWayWrapperFromEnv()
 	}
 	keys := helper.RetrievApiKeys(scwWrapper)
 
 	requestKey := strings.Split(r.Header.Get("Authorization"), " ")[1]
-	isValid := helper.Authenticate(r, keys, false)
+	isValid, err := helper.Authenticate(r, keys, false)
+	if err != nil {
+		log.Error().Msg("Error authenticating request. Details: " + err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Internal Server Error"))
+		return
+	}
 	if isValid {
 		log.Info().Msg("Valid API key, checking if new key is available")
 		if keys[0] == requestKey && len(keys) > 1 { // We have more than one key available, so this one should be the oldest
