@@ -32,8 +32,10 @@ func HandleGetNewKey(w http.ResponseWriter, r *http.Request) {
 	} else {
 		log.Info().Msg("No Error validating AppCheck token")
 		if os.Getenv("DEBUG") == "TRUE" {
+			log.Info().Msg("DEBUG MODE: TRUE")
 			scwWrapper = scw_secret_manager.NewScaleWayWrapperForDev()
 		} else {
+			log.Info().Msg("DEBUG MODE: FALSE")
 			scwWrapper = scw_secret_manager.NewScaleWayWrapperFromEnv()
 		}
 		apiKeys := helper.RetrievApiKeys(scwWrapper)

@@ -24,13 +24,15 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msg("Signature request received")
 	log.Debug().Msgf("DEBUG MODE: %v", isDebug)
 	if isDebug {
+		log.Info().Msg("DEBUG MODE: TRUE")
 		scwWrapper = secret_wrapper.NewScaleWayWrapperForDev()
 	} else {
+		log.Info().Msg("DEBUG MODE: FALSE")
 		scwWrapper = secret_wrapper.NewScaleWayWrapperFromEnv()
 	}
-	isValid := helper.Authenticate(r, helper.RetrievApiKeys(scwWrapper), false)
-	if !isValid {
-		log.Error().Msg("Unauthorized request")
+	isValid, err := helper.Authenticate(r, helper.RetrievApiKeys(scwWrapper), false)
+	if !isValid || err != nil {
+		log.Err(err).Msg("Unauthorized request")
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("Unauthorized"))
