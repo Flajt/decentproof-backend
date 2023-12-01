@@ -19,14 +19,16 @@ func HandleHashVerification(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msg("Handling hash verification")
 	var scwWrapper scw_secret_manager.IScaleWayWrapper
 	if os.Getenv("DEBUG") == "TRUE" {
+		log.Info().Msg("DEBUG MODE: TRUE")
 		scwWrapper = scw_secret_manager.NewScaleWayWrapperForDev()
 	} else {
+		log.Info().Msg("DEBUG MODE: FALSE")
 		scwWrapper = scw_secret_manager.NewScaleWayWrapperFromEnv()
 	}
 	apiKeys := helper.RetrievApiKeys(scwWrapper)
-	isValid := helper.Authenticate(r, apiKeys, true)
-	if !isValid {
-		log.Error().Msg("Invalid api key")
+	isValid, err := helper.Authenticate(r, apiKeys, true)
+	if !isValid || err != nil {
+		log.Err(err).Msg("Invalid api key")
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("Unauthorized"))
