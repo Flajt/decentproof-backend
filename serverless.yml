@@ -78,3 +78,7 @@ functions:
     handler: verify_hash/HandleHashVerification
     secret:
       ORIGINSTAMP_API_KEY: ${env:ORIGINSTAMP_API_KEY}
+      MCAPTCHA_SECRET: ${env:MCAPTCHA_SECRET}
+      MCAPTCHA_SITEKEY: ${env:MCAPTCHA_SITEKEY}
+    env:
+      MCAPTCHA_INSTANCE_URL: ${env:MCAPTCHA_INSTANCE_URL}
