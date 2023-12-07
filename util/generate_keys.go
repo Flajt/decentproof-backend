@@ -51,7 +51,7 @@ func saveKeys(key *ecdsa.PrivateKey, outPutDir string, outPutFileName string) er
 	}
 
 	bytes, err = x509.MarshalPKIXPublicKey(&key.PublicKey)
-	pubBloc := pem.Block{Type: "EC Public KEY", Bytes: bytes}
+	pubBloc := pem.Block{Type: "EC PUBLIC KEY", Bytes: bytes}
 	pubKeyFile, err := os.Create(outPutDir + "pub_" + outPutFileName + ".pem")
 	if err != nil {
 		return err
