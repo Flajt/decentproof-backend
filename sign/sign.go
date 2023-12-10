@@ -50,7 +50,15 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Bad Request"))
 		return
 	}
-	signatureBytes, err := signatureManager.SignData([]byte(holder.Data))
+	decodedHash, err := hex.DecodeString(holder.Data)
+	if err != nil {
+		log.Error().Msg("Bad Request, can't decode hash. Details: " + err.Error())
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Bad Request"))
+		return
+	}
+	signatureBytes, err := signatureManager.SignData(decodedHash)
 	if err != nil {
 		log.Error().Msg("Internal Server Error, can't sign data. Details: " + err.Error())
 		w.Header().Set("Content-Type", "text/plain")
