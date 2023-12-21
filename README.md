@@ -87,16 +87,13 @@ Currently the following packages offer tests: <br>
 - helper
 - webhook
 - encryption_service
-- sign (currently not applicable)
+- sign
 
 More support for functions should be added in the future.
-**Important:** Nearly all currently available tests are *E2E* and require access to scaleway 
 
 <br>
 
-**Note:** It's not planned to add teststing for originstamp related features due to the monthly limit of 5 free documents and to not clutter the blockchain.
-
-**Note2:** Currently tests which use the secret manager wipe all secrets after they are done, which needs to be resolved!
+**Note:** It's not planned to add testing for originstamp related features due to the monthly limit of 5 free documents and to not clutter the blockchain.
 
 ## Why so many packages?
 Yeah... about this: <br>
