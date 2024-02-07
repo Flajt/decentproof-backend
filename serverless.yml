@@ -64,6 +64,7 @@ functions:
 
   cron-job:
     handler: cronjob/Handle
+    privacy: private
     events:
       - schedule:
           # Every Sunday at 00:00 => https://crontab.guru/#0_0_*_*_0 | minute, hour, day (month) , month, day (week)
