@@ -48,9 +48,11 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 			if versionHolder.TotalCount >= 2 { // This shouldn't happen normally, only on the first migration and in case someone added additional secret manually
 				log.Info().Msgf(" %v secrets found, deleting all, creating new", versionHolder.TotalCount)
 				for _, version := range versionHolder.SecretVersions {
-					if err := wrapper.DeleteSecretVersion(version.SecretID, strconv.FormatUint(uint64(version.Revision), 10)); err != nil {
-						log.Fatal().Msg(err.Error())
-						returnError(w)
+					if version.Status != "destroyed" {
+						if err := wrapper.DeleteSecretVersion(version.SecretID, strconv.FormatUint(uint64(version.Revision), 10)); err != nil {
+							log.Fatal().Msg(err.Error())
+							returnError(w)
+						}
 					}
 					apiKey := helper.GenerateApiKey(32)
 					apiKeyBytes := []byte(apiKey)
@@ -73,6 +75,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 					returnError(w)
 				}
 			}
+			log.Info().Msg("Working on encryption key")
 			// Handle E-Mail encryption key management
 			secretHolder, err := wrapper.ListSecrets("ENCRYPTION_KEY")
 			if err != nil {
@@ -80,6 +83,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 				returnError(w)
 			}
 			if secretHolder.TotalCount == 0 {
+				log.Info().Msg("No encryption key found, creating new one")
 				base64Key := helper.GenerateApiKey(32)
 				bytes, err := base64.StdEncoding.DecodeString(base64Key)
 				if err != nil {
