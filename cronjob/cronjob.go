@@ -125,7 +125,8 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 						return secretVersion.SecretVersions[i].CreatedAt.Before(*secretVersion.SecretVersions[j].CreatedAt)
 					})
 					log.Info().Msg("Two secret versions found, deleting oldest and replacing it")
-					err = wrapper.DeleteSecretVersion(secretVersion.SecretVersions[0].SecretID, strconv.FormatUint(uint64(secretVersion.SecretVersions[1].Revision), 10))
+					secretVersionToDelete := secretVersion.SecretVersions[0]
+					err := wrapper.DeleteSecretVersion(secretVersionToDelete.SecretID, strconv.FormatUint(uint64(secretVersionToDelete.Revision), 10))
 					if err != nil {
 						log.Fatal().Msg(err.Error())
 						returnError(w)
