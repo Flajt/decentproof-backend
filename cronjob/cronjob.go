@@ -51,18 +51,16 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 			if versionHolder.TotalCount >= 2 { // This shouldn't happen normally, only on the first migration and in case someone added additional secret manually
 				log.Info().Msgf(" %v secrets found, deleting all, creating new", versionHolder.TotalCount)
 				for _, version := range versionHolder.SecretVersions {
-					if version.Status != "destroyed" {
-						if err := wrapper.DeleteSecretVersion(version.SecretID, strconv.FormatUint(uint64(version.Revision), 10)); err != nil {
-							log.Fatal().Msg(err.Error())
-							returnError(w)
-						}
-					}
-					apiKey := helper.GenerateApiKey(32)
-					apiKeyBytes := []byte(apiKey)
-					if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[0], apiKeyBytes); err != nil {
+					if err := wrapper.DeleteSecretVersion(version.SecretID, strconv.FormatUint(uint64(version.Revision), 10)); err != nil {
 						log.Fatal().Msg(err.Error())
 						returnError(w)
 					}
+				}
+				apiKey := helper.GenerateApiKey(32)
+				apiKeyBytes := []byte(apiKey)
+				if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[0], apiKeyBytes); err != nil {
+					log.Fatal().Msg(err.Error())
+					returnError(w)
 				}
 			} else {
 				log.Info().Msg("One secret found, replacing it")
