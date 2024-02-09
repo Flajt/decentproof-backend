@@ -1,4 +1,4 @@
-module github.com/Flajt/decentproof-backend/decentproof-cron
+module github.com/Flajt/decentproof-backend/cronjob
 
 go 1.20
 

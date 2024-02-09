@@ -17,10 +17,13 @@ import (
 func Handle(w http.ResponseWriter, r *http.Request) {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	log.Info().Msg("Starting cronjob")
-	var setupData = scw_secret_manager.ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
+	var wrapper scw_secret_manager.IScaleWayWrapper
 
-	//TODO; Find a way to make things less messy
-	wrapper := scw_secret_manager.NewScaleWayWrapper(setupData)
+	if os.Getenv("DEBUG") == "TRUE" {
+		wrapper = scw_secret_manager.NewScaleWayWrapperForDev()
+	} else {
+		wrapper = scw_secret_manager.NewScaleWayWrapperFromEnv()
+	}
 
 	secretHolder, err := wrapper.ListSecrets("apiKey")
 	if err != nil {
