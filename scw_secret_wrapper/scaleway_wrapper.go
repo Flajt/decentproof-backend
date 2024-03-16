@@ -87,7 +87,8 @@ func (scalewayWrapper *ScalewayWrapper) ListSecrets(names ...string) (SecretHold
 }
 
 func (ScalewayWrapper *ScalewayWrapper) ListSecretVersions(secretID string) (SecretVersionHolder, error) {
-	if secrets, err := ScalewayWrapper.Api.ListSecretVersions(&secret_manager.ListSecretVersionsRequest{SecretID: secretID}); err != nil {
+	/// Important: The []secret_manager.SecretVersionStatus{secret_manager.SecretVersionStatusEnabled} is used to filter out the disabled, destroyed & unknown versions of the secret, this does affect the total count, if you want to get the total count of all versions, remove the filter
+	if secrets, err := ScalewayWrapper.Api.ListSecretVersions(&secret_manager.ListSecretVersionsRequest{SecretID: secretID, Status: []secret_manager.SecretVersionStatus{secret_manager.SecretVersionStatusEnabled}}); err != nil {
 		return SecretVersionHolder{}, err
 	} else {
 		secretVersions := make([]SecretVersion, len(secrets.Versions))

@@ -17,10 +17,13 @@ import (
 func Handle(w http.ResponseWriter, r *http.Request) {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	log.Info().Msg("Starting cronjob")
-	var setupData = scw_secret_manager.ScaleWaySetupData{ProjectID: os.Getenv("SCW_DEFAULT_PROJECT_ID"), AccessKey: os.Getenv("SCW_ACCESS_KEY"), SecretKey: os.Getenv("SCW_SECRET_KEY"), Region: os.Getenv("SCW_DEFAULT_REGION")}
+	var wrapper scw_secret_manager.IScaleWayWrapper
 
-	//TODO; Find a way to make things less messy
-	wrapper := scw_secret_manager.NewScaleWayWrapper(setupData)
+	if os.Getenv("DEBUG") == "TRUE" {
+		wrapper = scw_secret_manager.NewScaleWayWrapperForDev()
+	} else {
+		wrapper = scw_secret_manager.NewScaleWayWrapperFromEnv()
+	}
 
 	secretHolder, err := wrapper.ListSecrets("apiKey")
 	if err != nil {
@@ -52,12 +55,12 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 						log.Fatal().Msg(err.Error())
 						returnError(w)
 					}
-					apiKey := helper.GenerateApiKey(32)
-					apiKeyBytes := []byte(apiKey)
-					if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[0], apiKeyBytes); err != nil {
-						log.Fatal().Msg(err.Error())
-						returnError(w)
-					}
+				}
+				apiKey := helper.GenerateApiKey(32)
+				apiKeyBytes := []byte(apiKey)
+				if err := wrapper.CreateNewSecretVersion(*secretHolder.Secrets[0], apiKeyBytes); err != nil {
+					log.Fatal().Msg(err.Error())
+					returnError(w)
 				}
 			} else {
 				log.Info().Msg("One secret found, replacing it")
@@ -73,6 +76,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 					returnError(w)
 				}
 			}
+			log.Info().Msg("Working on encryption key")
 			// Handle E-Mail encryption key management
 			secretHolder, err := wrapper.ListSecrets("ENCRYPTION_KEY")
 			if err != nil {
@@ -80,6 +84,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 				returnError(w)
 			}
 			if secretHolder.TotalCount == 0 {
+				log.Info().Msg("No encryption key found, creating new one")
 				base64Key := helper.GenerateApiKey(32)
 				bytes, err := base64.StdEncoding.DecodeString(base64Key)
 				if err != nil {
@@ -120,7 +125,8 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 						return secretVersion.SecretVersions[i].CreatedAt.Before(*secretVersion.SecretVersions[j].CreatedAt)
 					})
 					log.Info().Msg("Two secret versions found, deleting oldest and replacing it")
-					err = wrapper.DeleteSecretVersion(secretVersion.SecretVersions[0].SecretID, strconv.FormatUint(uint64(secretVersion.SecretVersions[1].Revision), 10))
+					secretVersionToDelete := secretVersion.SecretVersions[0]
+					err := wrapper.DeleteSecretVersion(secretVersionToDelete.SecretID, strconv.FormatUint(uint64(secretVersionToDelete.Revision), 10))
 					if err != nil {
 						log.Fatal().Msg(err.Error())
 						returnError(w)

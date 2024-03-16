@@ -8,7 +8,7 @@ import (
 	scw_wrapper "github.com/Flajt/decentproof-backend/scw_secret_wrapper"
 	"github.com/joho/godotenv"
 
-	decentproof_cronjob "github.com/Flajt/decentproof-backend/decentproof-cron"
+	decentproof_cronjob "github.com/Flajt/decentproof-backend/cronjob"
 )
 
 // MockResponseWriter is a basic mock implementation of http.ResponseWriter.
