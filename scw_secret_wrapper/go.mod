@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/joho/godotenv v1.5.1
-	github.com/scaleway/scaleway-sdk-go v1.0.0-beta.23
+	github.com/scaleway/scaleway-sdk-go v1.0.0-beta.25
 	go.uber.org/mock v0.4.0
 )
 
