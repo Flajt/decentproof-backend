@@ -31,10 +31,10 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
     
-    - name: Setup Go 1.20
+    - name: Setup Go 1.22
       uses: actions/setup-go@v4
       with:
-        go-version: '1.20'
+        go-version: '1.22'
         cache-dependency-path: |
              helper/go.sum
              scw_secret_wrapper/go.sum
