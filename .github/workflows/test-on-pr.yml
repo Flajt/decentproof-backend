@@ -18,10 +18,10 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
     
-    - name: Setup Go 1.20
+    - name: Setup Go 1.22
       uses: actions/setup-go@v4
       with:
-        go-version: '1.20'
+        go-version: '1.22'
     
     - name: Install all dependencies
       run: cd ${{github.workspace}}/scw_secret_wrapper && go get . && cd ${{github.workspace}}/helper && go get . && cd ${{github.workspace}}/sign && go get . && cd ${{github.workspace}}/encryption && go get . && cd ${{github.workspace}}/cronjob && go get .
