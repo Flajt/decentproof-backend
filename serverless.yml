@@ -6,7 +6,7 @@ useDotenv: true
 
 provider:
   name: scaleway
-  runtime: go120
+  runtime: go122
   # stage: prod
   # region in which the deployment will happen (default: fr-par)
   scwRegion: nl-ams
