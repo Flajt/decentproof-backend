@@ -1,6 +1,6 @@
 module github.com/Flajt/decentproof-backend/cronjob
 
-go 1.20
+go 1.22
 
 replace github.com/Flajt/decentproof-backend/scw_secret_wrapper => ../scw_secret_wrapper
 
@@ -21,6 +21,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/scaleway/scaleway-sdk-go v1.0.0-beta.28 // indirect
+	github.com/stretchr/testify v1.8.4 // indirect
 	go.uber.org/mock v0.4.0 // indirect
 	golang.org/x/sys v0.22.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

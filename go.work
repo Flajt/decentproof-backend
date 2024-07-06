@@ -1,14 +1,14 @@
-go 1.20
+go 1.22
 
 use (
 	./cronjob
-	./scw_secret_wrapper
+	./encryption
 	./get_new_key
 	./has_new_key
-	./sign
 	./helper
-	./webhook
 	./originstamp
+	./scw_secret_wrapper
+	./sign
 	./verify_hash
-	./encryption
+	./webhook
 )
