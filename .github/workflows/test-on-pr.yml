@@ -11,7 +11,7 @@ jobs:
   runs-on: ubuntu-latest
   steps:
     - name: Convert secrets to env vars
-      uses: Firenza/secrets-to-env@v1.2.0
+      uses: Firenza/secrets-to-env@v1.3.0
       with:
         secrets: ${{ toJSON(secrets) }}
 
