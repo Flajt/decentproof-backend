@@ -87,7 +87,7 @@ jobs:
         secret-key: ${{ secrets.SCW_SECRET_KEY }}
         default-project-id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
         default-organization-id: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }} #TODO: Check if in github secrets
-        args: function deploy name=get_new_key namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=get_new_key.zip
+        args: function deploy name=get-new-key namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=get_new_key.zip
     
     - name: Deploy has_new_key
       uses: scaleway/action-scw@v0
@@ -99,7 +99,7 @@ jobs:
           secret-key: ${{ secrets.SCW_SECRET_KEY }}
           default-project-id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
           default-organization-id: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }} #TODO: Check if in github secrets
-          args: function deploy name=has_new_key namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=has_new_key.zip
+          args: function deploy name=has-new-key namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=has_new_key.zip
     
     
     - name: Deploy webhook
@@ -124,7 +124,7 @@ jobs:
           secret-key: ${{ secrets.SCW_SECRET_KEY }}
           default-project-id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
           default-organization-id: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }} #TODO: Check if in github secrets
-          args: function deploy name=verify_hash namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=verify_hash.zip
+          args: function deploy name=verify-hash namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=verify_hash.zip
     
     - name: Deploy cronjob
       uses: scaleway/action-scw@v0
