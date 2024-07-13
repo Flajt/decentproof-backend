@@ -70,23 +70,23 @@ jobs:
       with:
         save-config: true
         export-config: false
-        version: v2.24.0
+        version: v2.32.1
         access-key: ${{ secrets.SCW_ACCESS_KEY }}
         secret-key: ${{ secrets.SCW_SECRET_KEY }}
-        default-project-id: ${{ secrets.SCW_PROJECT_ID }}
-        default-organization-id: ${{ secrets.SCW_ORGANIZATION_ID }} #TODO: Check if in github secrets
-        args: function deploy name=sign namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=sign.zip
+        default-project-id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
+        default-organization-id: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }} #TODO: Check if in github secrets
+        args: function deploy name=sign namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=sign.zip handler=sign.HandleSignature
     
     - name: Deploy get_new_key
       uses: scaleway/action-scw@v0
       with:
         save-config: true
         export-config: false
-        version: v2.24.0
+        version: v2.32.1
         access-key: ${{ secrets.SCW_ACCESS_KEY }}
         secret-key: ${{ secrets.SCW_SECRET_KEY }}
-        default-project-id: ${{ secrets.SCW_PROJECT_ID }}
-        default-organization-id: ${{ secrets.SCW_ORGANIZATION_ID }} #TODO: Check if in github secrets
+        default-project-id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
+        default-organization-id: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }} #TODO: Check if in github secrets
         args: function deploy name=get_new_key namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=get_new_key.zip
     
     - name: Deploy has_new_key
@@ -94,11 +94,11 @@ jobs:
       with:
           save-config: true
           export-config: false
-          version: v2.24.0
+          version: v2.32.1
           access-key: ${{ secrets.SCW_ACCESS_KEY }}
           secret-key: ${{ secrets.SCW_SECRET_KEY }}
-          default-project-id: ${{ secrets.SCW_PROJECT_ID }}
-          default-organization-id: ${{ secrets.SCW_ORGANIZATION_ID }} #TODO: Check if in github secrets
+          default-project-id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
+          default-organization-id: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }} #TODO: Check if in github secrets
           args: function deploy name=has_new_key namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=has_new_key.zip
     
     
@@ -107,11 +107,11 @@ jobs:
       with:
           save-config: true
           export-config: false
-          version: v2.24.0
+          version: v2.32.1
           access-key: ${{ secrets.SCW_ACCESS_KEY }}
           secret-key: ${{ secrets.SCW_SECRET_KEY }}
-          default-project-id: ${{ secrets.SCW_PROJECT_ID }}
-          default-organization-id: ${{ secrets.SCW_ORGANIZATION_ID }} #TODO: Check if in github secrets
+          default-project-id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
+          default-organization-id: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }} #TODO: Check if in github secrets
           args: function deploy name=webhook namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=webhook.zip
     
     - name: Deploy verify_hash
@@ -119,11 +119,11 @@ jobs:
       with:
           save-config: true
           export-config: false
-          version: v2.24.0
+          version: v2.32.1
           access-key: ${{ secrets.SCW_ACCESS_KEY }}
           secret-key: ${{ secrets.SCW_SECRET_KEY }}
-          default-project-id: ${{ secrets.SCW_PROJECT_ID }}
-          default-organization-id: ${{ secrets.SCW_ORGANIZATION_ID }} #TODO: Check if in github secrets
+          default-project-id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
+          default-organization-id: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }} #TODO: Check if in github secrets
           args: function deploy name=verify_hash namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=verify_hash.zip
     
     - name: Deploy cronjob
@@ -131,9 +131,9 @@ jobs:
       with:
           save-config: true
           export-config: false
-          version: v2.24.0
+          version: v2.32.1
           access-key: ${{ secrets.SCW_ACCESS_KEY }}
           secret-key: ${{ secrets.SCW_SECRET_KEY }}
-          default-project-id: ${{ secrets.SCW_PROJECT_ID }}
+          default-project-id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
           default-organization-id: ${{ secrets.SCW_ORGANIZATION_ID }} #TODO: Check if in github secrets
           args: function deploy name=cron-job namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=cronjob.zip
