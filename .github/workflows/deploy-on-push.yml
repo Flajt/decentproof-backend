@@ -23,6 +23,8 @@ jobs:
     env_name: ${{ steps.branch_check.outputs.env_name }}
  
  build:
+  env:
+    GOWORK: off # to enable packaging the modules via go mod vendor
   needs: [get_branch]
   environment:
     name: ${{ needs.get_branch.outputs.env_name }}
@@ -45,24 +47,93 @@ jobs:
       
     - name: Install all dependencies
       run: cd ${{github.workspace}}/scw_secret_wrapper && go get . && cd ${{github.workspace}}/helper && go get . && cd ${{github.workspace}}/sign && go get . && cd ${{github.workspace}}/cronjob && go get . && cd ${{github.workspace}}/has_new_key && go get . && cd ${{github.workspace}}/get_new_key && go get . && cd ${{github.workspace}}/originstamp && go get . && cd ${{github.workspace}}/webhook && go get . && cd ${{github.workspace}}/verify_hash && go get .
-
+    
     - name: Run go work vendor
-      run: cd ${{github.workspace}} && go work vendor
+      run: cd ${{github.workspace}}/get_new_key && go mod vendor && cd ${{github.workspace}}/has_new_key && go mod vendor && cd ${{github.workspace}}/sign && go mod vendor && cd ${{github.workspace}}/cronjob && go mod vendor && cd ${{github.workspace}}/webhook && go mod vendor && cd ${{github.workspace}}/verify_hash && go mod vendor
+    
     - name: Convert secrets to env vars
       uses: Firenza/secrets-to-env@v1.2.0
       with:
         secrets: ${{ toJSON(secrets) }}
-
-    - name: Setup npm
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-
-    - name: Install serverless
-      run: npm install -g serverless
-
-    - name: Install serverless plugin
-      run: serverless plugin install --name serverless-scaleway-functions
     
-    - name: Deploy functins
-      run: serverless deploy
+    - name: Build zips
+      run: |
+        zip -r sign.zip sign
+        zip -r get_new_key.zip get_new_key
+        zip -r has_new_key.zip has_new_key
+        zip -r cronjob.zip cronjob
+        zip -r webhook.zip webhook
+        zip -r verify_hash.zip verify_hash
+
+    - name: Deploy sign
+      uses: scaleway/action-scw@v0
+      with:
+        save-config: true
+        export-config: false
+        version: v2.24.0
+        access-key: ${{ secrets.SCW_ACCESS_KEY }}
+        secret-key: ${{ secrets.SCW_SECRET_KEY }}
+        default-project-id: ${{ secrets.SCW_PROJECT_ID }}
+        default-organization-id: ${{ secrets.SCW_ORGANIZATION_ID }} #TODO: Check if in github secrets
+        args: function deploy name=sign namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=sign.zip
+    
+    - name: Deploy get_new_key
+      uses: scaleway/action-scw@v0
+      with:
+        save-config: true
+        export-config: false
+        version: v2.24.0
+        access-key: ${{ secrets.SCW_ACCESS_KEY }}
+        secret-key: ${{ secrets.SCW_SECRET_KEY }}
+        default-project-id: ${{ secrets.SCW_PROJECT_ID }}
+        default-organization-id: ${{ secrets.SCW_ORGANIZATION_ID }} #TODO: Check if in github secrets
+        args: function deploy name=get_new_key namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=get_new_key.zip
+    
+    - name: Deploy has_new_key
+      uses: scaleway/action-scw@v0
+      with:
+          save-config: true
+          export-config: false
+          version: v2.24.0
+          access-key: ${{ secrets.SCW_ACCESS_KEY }}
+          secret-key: ${{ secrets.SCW_SECRET_KEY }}
+          default-project-id: ${{ secrets.SCW_PROJECT_ID }}
+          default-organization-id: ${{ secrets.SCW_ORGANIZATION_ID }} #TODO: Check if in github secrets
+          args: function deploy name=has_new_key namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=has_new_key.zip
+    
+    
+    - name: Deploy webhook
+      uses: scaleway/action-scw@v0
+      with:
+          save-config: true
+          export-config: false
+          version: v2.24.0
+          access-key: ${{ secrets.SCW_ACCESS_KEY }}
+          secret-key: ${{ secrets.SCW_SECRET_KEY }}
+          default-project-id: ${{ secrets.SCW_PROJECT_ID }}
+          default-organization-id: ${{ secrets.SCW_ORGANIZATION_ID }} #TODO: Check if in github secrets
+          args: function deploy name=webhook namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=webhook.zip
+    
+    - name: Deploy verify_hash
+      uses: scaleway/action-scw@v0
+      with:
+          save-config: true
+          export-config: false
+          version: v2.24.0
+          access-key: ${{ secrets.SCW_ACCESS_KEY }}
+          secret-key: ${{ secrets.SCW_SECRET_KEY }}
+          default-project-id: ${{ secrets.SCW_PROJECT_ID }}
+          default-organization-id: ${{ secrets.SCW_ORGANIZATION_ID }} #TODO: Check if in github secrets
+          args: function deploy name=verify_hash namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=verify_hash.zip
+    
+    - name: Deploy cronjob
+      uses: scaleway/action-scw@v0
+      with:
+          save-config: true
+          export-config: false
+          version: v2.24.0
+          access-key: ${{ secrets.SCW_ACCESS_KEY }}
+          secret-key: ${{ secrets.SCW_SECRET_KEY }}
+          default-project-id: ${{ secrets.SCW_PROJECT_ID }}
+          default-organization-id: ${{ secrets.SCW_ORGANIZATION_ID }} #TODO: Check if in github secrets
+          args: function deploy name=cron-job namespace-id=$SCW_NAMESPACE_ID runtime=go122 zip-file=cronjob.zip
