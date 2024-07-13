@@ -99,7 +99,7 @@ jobs:
           secret-key: ${{ secrets.SCW_SECRET_KEY }}
           default-project-id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
           default-organization-id: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }} #TODO: Check if in github secrets
-          args: function deploy name=has-new-key namespace-id=${{ secrets.SCW_NAMESPACE_ID }} runtime=go122 zip-file=has_new_key.zip
+          args: function deploy name=new-key-required namespace-id=${{ secrets.SCW_NAMESPACE_ID }} runtime=go122 zip-file=has_new_key.zip
     
     
     - name: Deploy webhook
@@ -112,7 +112,7 @@ jobs:
           secret-key: ${{ secrets.SCW_SECRET_KEY }}
           default-project-id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
           default-organization-id: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }} #TODO: Check if in github secrets
-          args: function deploy name=webhook namespace-id= ${{ secrets.SCW_NAMESPACE_ID }} runtime=go122 zip-file=webhook.zip
+          args: function deploy name=webhook namespace-id=${{ secrets.SCW_NAMESPACE_ID }} runtime=go122 zip-file=webhook.zip
     
     - name: Deploy verify_hash
       uses: scaleway/action-scw@v0
