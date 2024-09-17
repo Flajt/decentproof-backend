@@ -57,6 +57,18 @@ MCAPTCHA_SECRET=<your-mcaptcha-secret> # needs to be set if you want to verify w
 MCAPTCHA_SITEKEY=<your-mcaptcha-site-key> # needs to be set if you want to verify with the website, in PROD it's an encrypted secret
 MCAPTCHA_INSTANCE_URL=<your-mcpatcha-instance-url> # needs to be set if you want to verify w. website
 ```
+#### Env vars per function
+- sign: `WEBHOOK_URL` & `ORIGINSTAMP_API_KEY`
+- get-new-key: `GOOGLE_ADMIN_SDK_CREDS`
+- cron-job: ``
+- webhook: `ORIGINSTAMP_API_KEY` & `EMAIL_SECRET`
+- verify-hash: `ORIGINSTAMP_API_KEY` & `MCAPTCHA_SECRET` & `MCAPTCHA_SITEKEY` & `MCAPTCHA_INSTANCE_URL`
+
+Note to self:
+Currently you need to update the functions secrets and env vars via `scw function function update`
+
+The issue is it's nearly needed everywhere, in every function, in every test folder, everywhere...
+
 So please load it into your terminal enviroment. You can use my script in utils for that: `util/load_env.go`. This should load all env vars into your terminal (tested in VSCode), use the `--path` flag to pass the .env file path.
 
 **NOTE**: Currently the Github Secret for Originstamp Api and E-Mail Secret are the same for DEV as for PROD. The latter should be changed at some point in time. 
