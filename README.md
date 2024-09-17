@@ -52,7 +52,7 @@ WEBHOOK_URL=<the-url-for-the-webhook-callback> # if you don't set a domain you w
 PRIVATE_KEY=<the-private-key-for-signatures> # this one needs to be in the scaleway secret manager, or local mode!
 ENCRYPTION_KEY=<encryption-key-32bytes-for-mail> # only in secret manager, or local mode!
 DEBUG=<TRUE-or-anything-else> # if set to TRUE you can run the functions in local mode, which should improve testing capabilities and local development
-API_KEY=<base64-encoded-32byte-long-key> 
+API_KEY=<base64-encoded-32byte-long-key> # required only on local mode, please hardcode it in the app as well! (Debugging only)
 MCAPTCHA_SECRET=<your-mcaptcha-secret> # needs to be set if you want to verify with the website, in PROD it's an encrypted secret
 MCAPTCHA_SITEKEY=<your-mcaptcha-site-key> # needs to be set if you want to verify with the website, in PROD it's an encrypted secret
 MCAPTCHA_INSTANCE_URL=<your-mcpatcha-instance-url> # needs to be set if you want to verify w. website
@@ -68,6 +68,7 @@ Note to self:
 Currently you need to update the functions secrets and env vars via `scw function function update`
 
 The issue is it's nearly needed everywhere, in every function, in every test folder, everywhere...
+
 So please load it into your terminal enviroment. You can use my script in utils for that: `util/load_env.go`. This should load all env vars into your terminal (tested in VSCode), use the `--path` flag to pass the .env file path.
 
 **NOTE**: Currently the Github Secret for Originstamp Api and E-Mail Secret are the same for DEV as for PROD. The latter should be changed at some point in time. 
@@ -98,16 +99,13 @@ Currently the following packages offer tests: <br>
 - helper
 - webhook
 - encryption_service
-- sign (currently not applicable)
+- sign
 
 More support for functions should be added in the future.
-**Important:** Nearly all currently available tests are *E2E* and require access to scaleway 
 
 <br>
 
-**Note:** It's not planned to add teststing for originstamp related features due to the monthly limit of 5 free documents and to not clutter the blockchain.
-
-**Note2:** Currently tests which use the secret manager wipe all secrets after they are done, which needs to be resolved!
+**Note:** It's not planned to add testing for originstamp related features due to the monthly limit of 5 free documents and to not clutter the blockchain.
 
 ## Why so many packages?
 Yeah... about this: <br>
