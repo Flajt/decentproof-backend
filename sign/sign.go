@@ -82,9 +82,21 @@ func HandleSignature(w http.ResponseWriter, r *http.Request) {
 		webhookUrl = ""
 	}
 	client := originstamp.NewOriginStampApiClient(APIKEY)
-	bitcoinNotificationTarget := models.OriginStampNotificationTarget{Target: webhookUrl, NotificationType: 1, Currency: 0}
-	etheriumNotificationTarget := models.OriginStampNotificationTarget{Target: webhookUrl, NotificationType: 1, Currency: 1}
-	timeStampReqModel := models.OriginStampTimestampRequestBody{Comment: hex.EncodeToString(signatureBytes), Hash: holder.Data, Notifications: []models.OriginStampNotificationTarget{bitcoinNotificationTarget, etheriumNotificationTarget}}
+	targets := []models.OriginStampNotificationTarget{}
+	if holder.BlockChain == Bitcoin {
+		bitcoinNotificationTarget := models.OriginStampNotificationTarget{Target: webhookUrl, NotificationType: 1, Currency: 0}
+		targets = append(targets, bitcoinNotificationTarget)
+	} else if holder.BlockChain == Ethereum {
+		etheriumNotificationTarget := models.OriginStampNotificationTarget{Target: webhookUrl, NotificationType: 1, Currency: 1}
+		targets = append(targets, etheriumNotificationTarget)
+	} else {
+		log.Error().Msg("Bad Request, can't decode blockchain.")
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Bad Request"))
+		return
+	}
+	timeStampReqModel := models.OriginStampTimestampRequestBody{Comment: hex.EncodeToString(signatureBytes), Hash: holder.Data, Notifications: targets}
 	resp, err := client.CreateTimestamp(timeStampReqModel)
 	if err != nil {
 		log.Error().Err(err).Msg("Can't create timestamp. Details: " + err.Error())
