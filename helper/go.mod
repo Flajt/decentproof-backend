@@ -6,9 +6,9 @@ replace github.com/Flajt/decentproof-backend/scw_secret_wrapper => ../scw_secret
 
 require (
 	codeberg.org/gusted/mcaptcha v0.0.0-20220723083913-4f3072e1d570
-	github.com/Flajt/decentproof-backend/scw_secret_wrapper v0.0.0-20240321002430-57a80da943b1
+	github.com/Flajt/decentproof-backend/scw_secret_wrapper v0.0.0-20240921113304-cf17ebdad1ff
 	github.com/joho/godotenv v1.5.1
-	go.uber.org/mock v0.4.0
+	go.uber.org/mock v0.5.0
 )
 
 require (
