@@ -8,8 +8,8 @@ replace github.com/Flajt/decentproof-backend/helper => ../helper
 
 require (
 	github.com/Flajt/decentproof-backend/helper v0.0.0-00010101000000-000000000000
-	github.com/Flajt/decentproof-backend/scw_secret_wrapper v0.0.0-20240321002430-57a80da943b1
-	go.uber.org/mock v0.4.0
+	github.com/Flajt/decentproof-backend/scw_secret_wrapper v0.0.0-20240921113304-cf17ebdad1ff
+	go.uber.org/mock v0.5.0
 )
 
 require (
